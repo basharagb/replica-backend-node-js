@@ -13,6 +13,7 @@ const controller = new EnvironmentController();
 
 // 🔹 جلب درجة الحرارة البيئية الحالية
 router.get('/temperature', controller.getCurrentTemperature.bind(controller));
+router.get('/latest', controller.getCurrentTemperature.bind(controller));
 
 // 🔹 جلب سجل درجات الحرارة البيئية
 router.get('/temperature/history', controller.getTemperatureHistory.bind(controller));

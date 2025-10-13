@@ -1,0 +1,693 @@
+{
+  "info": {
+    "_postman_id": "62fdd824-6db0-46bf-9c59-d56ed02292ae",
+    "name": "Industrial Silo Monitoring API - English Collection",
+    "description": "Complete English collection for Node.js Industrial Silo Temperature Monitoring System\n\nDeveloped by: Eng. Bashar Mohammad Zabadani\nEmail: basharagb@gmail.com\nPhone: +962780853195\nLinkedIn: https://www.linkedin.com/in/bashar-mohammad-77328b10b/\n\nThis collection provides comprehensive API endpoints for monitoring industrial grain silos with real-time temperature sensing, alert management, and data analytics.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "47470945",
+    "_collection_link": "https://rnd-idealchip-105818.postman.co/workspace/iDEALCHiP-RND's-Workspace~6dc74025-fd84-4325-85da-5fabcd28080f/collection/47382135-62fdd824-6db0-46bf-9c59-d56ed02292ae?action=share&source=collection_link&creator=47470945"
+  },
+  "item": [
+    {
+      "name": "🩺 System Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/health",
+            "description": "Check system health and database connectivity"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔐 Authentication & Users",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"ahmed\",\n  \"password\": \"ahmed\"\n}"
+            },
+            "url": "{{base_url}}/api/users/login",
+            "description": "User login with username and password"
+          }
+        },
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"newuser\",\n  \"password\": \"password123\",\n  \"email\": \"user@idealchip.com\",\n  \"role\": \"operator\"\n}"
+            },
+            "url": "{{base_url}}/api/users/register",
+            "description": "Register a new user account"
+          }
+        },
+        {
+          "name": "User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/users/profile",
+            "description": "Get current user profile information"
+          }
+        },
+        {
+          "name": "All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/users",
+            "description": "Get list of all users (admin only)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏭 Silo Management",
+      "item": [
+        {
+          "name": "Get All Silos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/silos",
+            "description": "Retrieve all silos with basic information"
+          }
+        },
+        {
+          "name": "Get Single Silo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/silos/1",
+            "description": "Get detailed information for a specific silo"
+          }
+        },
+        {
+          "name": "Get Silo Cables",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/cables/1",
+            "description": "Get all cables for a specific silo"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 Sensor Readings",
+      "item": [
+        {
+          "name": "Sensor Readings - All",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/readings/by-sensor?sensor_id=1&sensor_id=2&sensor_id=1800",
+              "host": ["{{base_url}}"],
+              "path": ["api", "readings", "by-sensor"],
+              "query": [
+                {"key": "sensor_id", "value": "1"},
+                {"key": "sensor_id", "value": "2"},
+                {"key": "sensor_id", "value": "1800"},
+                {"key": "start", "value": "2025-07-16T00:00", "disabled": true},
+                {"key": "end", "value": "2025-07-16T19:00", "disabled": true}
+              ]
+            },
+            "description": "Get all readings for specific sensors with optional time range"
+          }
+        },
+        {
+          "name": "Sensor Readings - Latest",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/readings/latest/by-sensor?sensor_id=1&sensor_id=2&sensor_id=1800&start=2025-07-16T00:00",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "latest", "by-sensor"],
+              "query": [
+                {"key": "sensor_id", "value": "1"},
+                {"key": "sensor_id", "value": "2"},
+                {"key": "sensor_id", "value": "1800"},
+                {"key": "start", "value": "2025-07-16T00:00"}
+              ]
+            },
+            "description": "Get latest readings for specific sensors"
+          }
+        },
+        {
+          "name": "Sensor Readings - Maximum",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/readings/max/by-sensor?sensor_id=1&sensor_id=2&sensor_id=1800",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "max", "by-sensor"],
+              "query": [
+                {"key": "sensor_id", "value": "1"},
+                {"key": "sensor_id", "value": "2"},
+                {"key": "sensor_id", "value": "1800"}
+              ]
+            },
+            "description": "Get maximum temperature readings for specific sensors"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔌 Cable Readings",
+      "item": [
+        {
+          "name": "Cable Readings - All",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/readings/by-cable?cable_id=1&cable_id=2&cable_id=3&start=2025-07-16T00:00",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "by-cable"],
+              "query": [
+                {"key": "cable_id", "value": "1"},
+                {"key": "cable_id", "value": "2"},
+                {"key": "cable_id", "value": "3"},
+                {"key": "start", "value": "2025-07-16T00:00"}
+              ]
+            },
+            "description": "Get all readings for specific cables with time range"
+          }
+        },
+        {
+          "name": "Cable Readings - Latest",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/readings/latest/by-cable?cable_id=1&cable_id=2&cable_id=3&start=2025-07-16T00:00",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "latest", "by-cable"],
+              "query": [
+                {"key": "cable_id", "value": "1"},
+                {"key": "cable_id", "value": "2"},
+                {"key": "cable_id", "value": "3"},
+                {"key": "start", "value": "2025-07-16T00:00"}
+              ]
+            },
+            "description": "Get latest readings for specific cables"
+          }
+        },
+        {
+          "name": "Cable Readings - Maximum",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/readings/max/by-cable?cable_id=1&cable_id=2&cable_id=3&start=2025-07-16T00:00",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "max", "by-cable"],
+              "query": [
+                {"key": "cable_id", "value": "1"},
+                {"key": "cable_id", "value": "2"},
+                {"key": "cable_id", "value": "3"},
+                {"key": "start", "value": "2025-07-16T00:00"}
+              ]
+            },
+            "description": "Get maximum temperature readings for specific cables"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏭 Silo Readings by ID",
+      "item": [
+        {
+          "name": "Silo Readings - All",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/readings/by-silo-id?silo_id=1&silo_id=2&start=2025-07-16T00:00",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "by-silo-id"],
+              "query": [
+                {"key": "silo_id", "value": "1"},
+                {"key": "silo_id", "value": "2"},
+                {"key": "start", "value": "2025-07-16T00:00"}
+              ]
+            },
+            "description": "Get all readings for specific silos by ID"
+          }
+        },
+        {
+          "name": "Silo Readings - Latest",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/readings/latest/by-silo-id?silo_id=1&silo_id=2&silo_id=57",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "latest", "by-silo-id"],
+              "query": [
+                {"key": "silo_id", "value": "1"},
+                {"key": "silo_id", "value": "2"},
+                {"key": "silo_id", "value": "57"}
+              ]
+            },
+            "description": "Get latest readings for specific silos by ID"
+          }
+        },
+        {
+          "name": "Silo Readings - Maximum",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/readings/max/by-silo-id?silo_id=1&silo_id=2&silo_id=56&start=2025-07-16T00:00",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "max", "by-silo-id"],
+              "query": [
+                {"key": "silo_id", "value": "1"},
+                {"key": "silo_id", "value": "2"},
+                {"key": "silo_id", "value": "56"},
+                {"key": "start", "value": "2025-07-16T00:00"}
+              ]
+            },
+            "description": "Get maximum temperature readings for specific silos by ID"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📈 Averaged Silo Readings by ID",
+      "item": [
+        {
+          "name": "Silo Averaged Readings - All",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/readings/avg/by-silo-id?silo_id=1&silo_id=2&silo_id=56&start=2025-07-16T00:00",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "avg", "by-silo-id"],
+              "query": [
+                {"key": "silo_id", "value": "1"},
+                {"key": "silo_id", "value": "2"},
+                {"key": "silo_id", "value": "56"},
+                {"key": "start", "value": "2025-07-16T00:00"}
+              ]
+            },
+            "description": "Get all averaged readings across cables for specific silos by ID"
+          }
+        },
+        {
+          "name": "Silo Averaged Readings - Latest",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/readings/avg/latest/by-silo-id?silo_id=1&silo_id=2&silo_id=56&start=2025-07-16T00:00",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "avg", "latest", "by-silo-id"],
+              "query": [
+                {"key": "silo_id", "value": "1"},
+                {"key": "silo_id", "value": "2"},
+                {"key": "silo_id", "value": "56"},
+                {"key": "start", "value": "2025-07-16T00:00"}
+              ]
+            },
+            "description": "Get latest averaged readings across cables for specific silos by ID"
+          }
+        },
+        {
+          "name": "Silo Averaged Readings - Maximum",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/readings/avg/max/by-silo-id?silo_id=1&silo_id=2&silo_id=56&start=2025-07-16T00:00",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "avg", "max", "by-silo-id"],
+              "query": [
+                {"key": "silo_id", "value": "1"},
+                {"key": "silo_id", "value": "2"},
+                {"key": "silo_id", "value": "56"},
+                {"key": "start", "value": "2025-07-16T00:00"}
+              ]
+            },
+            "description": "Get maximum averaged readings across cables for specific silos by ID"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔢 Silo Readings by Number",
+      "item": [
+        {
+          "name": "Silo Number - All Readings",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/readings/by-silo-number?silo_number=1",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "by-silo-number"],
+              "query": [
+                {"key": "silo_number", "value": "1"}
+              ]
+            },
+            "description": "Get all readings for a specific silo by number"
+          }
+        },
+        {
+          "name": "Silo Number - Latest Readings",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/readings/latest/by-silo-number?silo_number=1&silo_number=14",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "latest", "by-silo-number"],
+              "query": [
+                {"key": "silo_number", "value": "1"},
+                {"key": "silo_number", "value": "14"},
+                {"key": "start", "value": "2025-07-16T00:00", "disabled": true},
+                {"key": "end", "value": "2025-07-16T19:00", "disabled": true}
+              ]
+            },
+            "description": "Get latest readings for multiple silos by number - shows individual cable data for each silo"
+          }
+        },
+        {
+          "name": "Silo Number - Maximum Readings",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/readings/max/by-silo-number",
+            "description": "Get maximum temperature readings for silos by number"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 Averaged Silo Readings by Number",
+      "item": [
+        {
+          "name": "Silo Number Averaged - All",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/readings/avg/by-silo-number?silo_number=1&silo_number=2&silo_number=55&start=2025-07-16T00:00",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "avg", "by-silo-number"],
+              "query": [
+                {"key": "silo_number", "value": "1"},
+                {"key": "silo_number", "value": "2"},
+                {"key": "silo_number", "value": "55"},
+                {"key": "start", "value": "2025-07-16T00:00"}
+              ]
+            },
+            "description": "Get all averaged readings across cables for specific silos by number"
+          }
+        },
+        {
+          "name": "Silo Number Averaged - Latest",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/readings/avg/latest/by-silo-number?silo_number=1",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "avg", "latest", "by-silo-number"],
+              "query": [
+                {"key": "silo_number", "value": "1"},
+                {"key": "start", "value": "2025-07-16T00:00", "disabled": true},
+                {"key": "end", "value": "2025-07-16T19:00", "disabled": true}
+              ]
+            },
+            "description": "Get latest averaged readings across all cables for a silo - returns single averaged result per silo"
+          }
+        },
+        {
+          "name": "Silo Number Averaged - Maximum",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/readings/avg/max/by-silo-number?silo_number=1&silo_number=2&silo_number=55&start=2025-07-16T00:00",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "avg", "max", "by-silo-number"],
+              "query": [
+                {"key": "silo_number", "value": "1"},
+                {"key": "silo_number", "value": "2"},
+                {"key": "silo_number", "value": "55"},
+                {"key": "start", "value": "2025-07-16T00:00"}
+              ]
+            },
+            "description": "Get maximum averaged readings across cables for specific silos by number"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏢 Silo Group Readings",
+      "item": [
+        {
+          "name": "Silo Group - All Readings",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/readings/by-silo-group-id?silo_group_id=2&start=2025-07-16T00:00",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "by-silo-group-id"],
+              "query": [
+                {"key": "silo_group_id", "value": "2"},
+                {"key": "start", "value": "2025-07-16T00:00"}
+              ]
+            },
+            "description": "Get all readings for a specific silo group"
+          }
+        },
+        {
+          "name": "Silo Group - Latest Readings",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/readings/latest/by-silo-group-id?silo_group_id=2&start=2025-07-16T00:00",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "latest", "by-silo-group-id"],
+              "query": [
+                {"key": "silo_group_id", "value": "2"},
+                {"key": "start", "value": "2025-07-16T00:00"}
+              ]
+            },
+            "description": "Get latest readings for a specific silo group"
+          }
+        },
+        {
+          "name": "Silo Group - Maximum Readings",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/readings/max/by-silo-group-id?silo_group_id=1&start=2025-07-16T00:00",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "max", "by-silo-group-id"],
+              "query": [
+                {"key": "silo_group_id", "value": "1"},
+                {"key": "start", "value": "2025-07-16T00:00"}
+              ]
+            },
+            "description": "Get maximum temperature readings for a specific silo group"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📈 Averaged Silo Group Readings",
+      "item": [
+        {
+          "name": "Silo Group Averaged - All",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/readings/avg/by-silo-group-id?silo_group_id=1&start=2025-07-16T00:00",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "avg", "by-silo-group-id"],
+              "query": [
+                {"key": "silo_group_id", "value": "1"},
+                {"key": "start", "value": "2025-07-16T00:00"}
+              ]
+            },
+            "description": "Get all averaged readings for a specific silo group"
+          }
+        },
+        {
+          "name": "Silo Group Averaged - Latest",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/readings/avg/latest/by-silo-group-id?silo_group_id=1&start=2025-07-16T00:00",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "avg", "latest", "by-silo-group-id"],
+              "query": [
+                {"key": "silo_group_id", "value": "1"},
+                {"key": "start", "value": "2025-07-16T00:00"}
+              ]
+            },
+            "description": "Get latest averaged readings for a specific silo group"
+          }
+        },
+        {
+          "name": "Silo Group Averaged - Maximum",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/readings/avg/max/by-silo-group-id?silo_group_id=1&start=2025-07-16T00:00",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "avg", "max", "by-silo-group-id"],
+              "query": [
+                {"key": "silo_group_id", "value": "1"},
+                {"key": "start", "value": "2025-07-16T00:00"}
+              ]
+            },
+            "description": "Get maximum averaged readings for a specific silo group"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🚨 Alerts",
+      "item": [
+        {
+          "name": "Active Alerts",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/alerts/active",
+            "description": "Get all currently active alerts from the system"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 Fill Level Estimation",
+      "item": [
+        {
+          "name": "Silo Fill Level Estimate",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/silos/level-estimate/by-number?silo_number=12&silo_number=13",
+              "host": ["{{base_url}}"],
+              "path": ["silos", "level-estimate", "by-number"],
+              "query": [
+                {"key": "silo_number", "value": "12"},
+                {"key": "silo_number", "value": "13"}
+              ]
+            },
+            "description": "Estimate fill level of silos using k-means clustering analysis"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📱 SMS System",
+      "item": [
+        {
+          "name": "Send SMS",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"to\":\"+962790707653\",\"message\":\"Hello from Silo Monitoring System!\"}"
+            },
+            "url": "{{base_url}}/api/sms/send",
+            "description": "Send SMS notification"
+          }
+        },
+        {
+          "name": "SMS History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/sms/history",
+            "description": "Get SMS message history"
+          }
+        },
+        {
+          "name": "GSM Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/sms/health",
+            "description": "Check GSM modem health status"
+          }
+        },
+        {
+          "name": "Emergency SMS",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"to\":\"+962790707653\",\"message\":\"EMERGENCY ALERT: High temperature detected in Silo 1\",\"priority\":\"high\"}"
+            },
+            "url": "{{base_url}}/api/sms/emergency",
+            "description": "Send high-priority emergency SMS alert"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🌡️ Environment Temperature",
+      "item": [
+        {
+          "name": "Environment Temperature",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/env_temp/temperature",
+            "description": "Get current environmental temperature reading"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://192.168.1.92:5000",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

@@ -13,6 +13,7 @@ const controller = new SmsController();
 
 // 🔹 إرسال رسالة SMS
 router.post('/', controller.sendMessage.bind(controller));
+router.post('/send', controller.sendMessage.bind(controller));
 
 // 🔹 فحص حالة خدمة GSM
 router.get('/health', controller.getGsmHealth.bind(controller));
