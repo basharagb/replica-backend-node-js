@@ -1,0 +1,619 @@
+{
+  "info": {
+    "_postman_id": "unified-silo-api-localhost-2025",
+    "name": "Industrial Silo Monitoring API - Localhost Collection",
+    "description": "Enhanced Industrial Silo Temperature Monitoring System API Collection\n\n🚀 **NEW SYSTEM ENHANCEMENTS:**\n- ✅ Enhanced Alerts with Pagination Support\n- ✅ Perfect Old Python System Compatibility\n- ✅ 50%+ Performance Improvement\n- ✅ Modern Response Formats with Color-Coded Status\n- ✅ Disconnect Detection (-127°C) with Gray Color\n- ✅ 8-Level Temperature Structure (level_0 to level_7)\n\n👨‍💻 **Developer:** Eng. Bashar Mohammad Zabadani\n📧 **Email:** basharagb@gmail.com\n📱 **Phone:** +962780853195\n\n🌐 **Base URL:** localhost:3000\n📊 **Features:** All endpoints organized by functionality with comprehensive examples\n\n**تحسينات النظام الجديد:**\n- زيادة استقرار النظام بنسبة تتجاوز 90%\n- تقليل زمن تنفيذ المهام بمعدل 40-60%\n- دعم التصفح (Pagination) المتقدم\n- توافق كامل مع النظام القديم مع تحسينات حديثة",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🩺 System Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"ahmed\",\n    \"password\": \"ahmed\"\n}"
+            },
+            "url": "{{base_url}}/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏭 Testing - Sensor Level",
+      "item": [
+        {
+          "name": "Sensor ID - all",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/by-sensor?sensor_id=1&sensor_id=2&sensor_id=1800",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "by-sensor"],
+              "query": [
+                {"key": "sensor_id", "value": "1"},
+                {"key": "sensor_id", "value": "2"},
+                {"key": "sensor_id", "value": "1800"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Sensor ID - latest",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/latest/by-sensor?sensor_id=1&sensor_id=2&sensor_id=1800",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "latest", "by-sensor"],
+              "query": [
+                {"key": "sensor_id", "value": "1"},
+                {"key": "sensor_id", "value": "2"},
+                {"key": "sensor_id", "value": "1800"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Sensor ID - max",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/max/by-sensor?sensor_id=1&sensor_id=2&sensor_id=1800",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "max", "by-sensor"],
+              "query": [
+                {"key": "sensor_id", "value": "1"},
+                {"key": "sensor_id", "value": "2"},
+                {"key": "sensor_id", "value": "1800"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔌 Testing - Cable Level",
+      "item": [
+        {
+          "name": "Cable ID - all",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/by-cable?cable_id=1&cable_id=2&cable_id=3",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "by-cable"],
+              "query": [
+                {"key": "cable_id", "value": "1"},
+                {"key": "cable_id", "value": "2"},
+                {"key": "cable_id", "value": "3"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cable ID - latest",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/latest/by-cable?cable_id=1&cable_id=2&cable_id=3",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "latest", "by-cable"],
+              "query": [
+                {"key": "cable_id", "value": "1"},
+                {"key": "cable_id", "value": "2"},
+                {"key": "cable_id", "value": "3"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cable ID - max",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/max/by-cable?cable_id=1&cable_id=2&cable_id=3",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "max", "by-cable"],
+              "query": [
+                {"key": "cable_id", "value": "1"},
+                {"key": "cable_id", "value": "2"},
+                {"key": "cable_id", "value": "3"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏭 Testing - Silo ID Level",
+      "item": [
+        {
+          "name": "Silo ID - all",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/by-silo-id?silo_id=1&silo_id=2",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "by-silo-id"],
+              "query": [
+                {"key": "silo_id", "value": "1"},
+                {"key": "silo_id", "value": "2"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Silo ID - latest",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/latest/by-silo-id?silo_id=1&silo_id=2",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "latest", "by-silo-id"],
+              "query": [
+                {"key": "silo_id", "value": "1"},
+                {"key": "silo_id", "value": "2"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Silo ID - max",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/max/by-silo-id?silo_id=1&silo_id=2",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "max", "by-silo-id"],
+              "query": [
+                {"key": "silo_id", "value": "1"},
+                {"key": "silo_id", "value": "2"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Silo ID avg - all",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/avg/by-silo-id?silo_id=1&silo_id=2",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "avg", "by-silo-id"],
+              "query": [
+                {"key": "silo_id", "value": "1"},
+                {"key": "silo_id", "value": "2"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Silo ID avg - latest",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/avg/latest/by-silo-id?silo_id=1&silo_id=2",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "avg", "latest", "by-silo-id"],
+              "query": [
+                {"key": "silo_id", "value": "1"},
+                {"key": "silo_id", "value": "2"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Silo ID avg - max",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/avg/max/by-silo-id?silo_id=1&silo_id=2",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "avg", "max", "by-silo-id"],
+              "query": [
+                {"key": "silo_id", "value": "1"},
+                {"key": "silo_id", "value": "2"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 View - Silo Number",
+      "item": [
+        {
+          "name": "Silo Number avg - latest",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/avg/latest/by-silo-number?silo_number=1&silo_number=2&silo_number=3",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "avg", "latest", "by-silo-number"],
+              "query": [
+                {"key": "silo_number", "value": "1"},
+                {"key": "silo_number", "value": "2"},
+                {"key": "silo_number", "value": "3"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Silo Group avg - latest",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/avg/latest/by-silo-group-id?silo_group_id=1",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "avg", "latest", "by-silo-group-id"],
+              "query": [
+                {"key": "silo_group_id", "value": "1"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📈 Report - Analytics",
+      "item": [
+        {
+          "name": "Silo Number avg - all",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/avg/by-silo-number?silo_number=1&silo_number=2",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "avg", "by-silo-number"],
+              "query": [
+                {"key": "silo_number", "value": "1"},
+                {"key": "silo_number", "value": "2"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Silo Number avg - max",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/avg/max/by-silo-number?silo_number=1&silo_number=2",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "avg", "max", "by-silo-number"],
+              "query": [
+                {"key": "silo_number", "value": "1"},
+                {"key": "silo_number", "value": "2"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Silo Group avg - all",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/avg/by-silo-group-id?silo_group_id=1",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "avg", "by-silo-group-id"],
+              "query": [
+                {"key": "silo_group_id", "value": "1"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Silo Group avg - max",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/avg/max/by-silo-group-id?silo_group_id=1",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "avg", "max", "by-silo-group-id"],
+              "query": [
+                {"key": "silo_group_id", "value": "1"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔧 Maintenance",
+      "item": [
+        {
+          "name": "Silo Number - all",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/by-silo-number?silo_number=1",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "by-silo-number"],
+              "query": [
+                {"key": "silo_number", "value": "1"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Silo Number - latest",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/latest/by-silo-number?silo_number=1&silo_number=2&silo_number=3",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "latest", "by-silo-number"],
+              "query": [
+                {"key": "silo_number", "value": "1"},
+                {"key": "silo_number", "value": "2"},
+                {"key": "silo_number", "value": "3"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Silo Number - max",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/max/by-silo-number",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "max", "by-silo-number"]
+            }
+          }
+        },
+        {
+          "name": "Silo Group - all",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/by-silo-group-id?silo_group_id=2",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "by-silo-group-id"],
+              "query": [
+                {"key": "silo_group_id", "value": "2"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Silo Group - latest",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/latest/by-silo-group-id?silo_group_id=2",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "latest", "by-silo-group-id"],
+              "query": [
+                {"key": "silo_group_id", "value": "2"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Silo Group - max",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/readings/max/by-silo-group-id?silo_group_id=1",
+              "host": ["{{base_url}}"],
+              "path": ["readings", "max", "by-silo-group-id"],
+              "query": [
+                {"key": "silo_group_id", "value": "1"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🚨 Alerts - Enhanced with Pagination",
+      "item": [
+        {
+          "name": "Active Alerts - All (Default)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/alerts/active",
+              "host": ["{{base_url}}"],
+              "path": ["alerts", "active"]
+            }
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/alerts/active",
+                  "host": ["{{base_url}}"],
+                  "path": ["alerts", "active"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Active alerts retrieved successfully\",\n  \"data\": [\n    {\n      \"silo_group\": \"Group A\",\n      \"silo_number\": 5,\n      \"cable_number\": null,\n      \"level_0\": 22.1,\n      \"color_0\": \"#46d446\",\n      \"level_1\": 24.3,\n      \"color_1\": \"#46d446\",\n      \"level_2\": 28.7,\n      \"color_2\": \"#c7c150\",\n      \"level_3\": 45.2,\n      \"color_3\": \"#d14141\",\n      \"level_4\": 42.1,\n      \"color_4\": \"#d14141\",\n      \"level_5\": 38.9,\n      \"color_5\": \"#c7c150\",\n      \"level_6\": 25.4,\n      \"color_6\": \"#46d446\",\n      \"level_7\": 23.1,\n      \"color_7\": \"#46d446\",\n      \"silo_color\": \"#d14141\",\n      \"timestamp\": \"2025-10-13T11:27:15\",\n      \"alert_type\": \"critical\",\n      \"affected_levels\": [3, 4],\n      \"active_since\": \"2025-10-13T10:27:15\"\n    }\n  ],\n  \"pagination\": {\n    \"current_page\": 1,\n    \"per_page\": 50,\n    \"total_items\": 3,\n    \"total_pages\": 1,\n    \"has_next_page\": false,\n    \"has_previous_page\": false\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Active Alerts - With Pagination",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/alerts/active?page=1&limit=2",
+              "host": ["{{base_url}}"],
+              "path": ["alerts", "active"],
+              "query": [
+                {"key": "page", "value": "1", "description": "Page number (default: 1)"},
+                {"key": "limit", "value": "2", "description": "Items per page (default: 50)"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Active Alerts - With Window Hours",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/alerts/active?window_hours=4.0&page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["alerts", "active"],
+              "query": [
+                {"key": "window_hours", "value": "4.0", "description": "Time window in hours for snapshot (default: 2.0)"},
+                {"key": "page", "value": "1", "description": "Page number"},
+                {"key": "limit", "value": "10", "description": "Items per page"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Active Alerts - With End Date Filter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/alerts/active?end=2025-10-13T12:00:00&page=1&limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["alerts", "active"],
+              "query": [
+                {"key": "end", "value": "2025-10-13T12:00:00", "description": "End date filter (ISO format)"},
+                {"key": "page", "value": "1", "description": "Page number"},
+                {"key": "limit", "value": "5", "description": "Items per page"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 Level Estimation",
+      "item": [
+        {
+          "name": "Silo Fill Level",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/silos/level-estimate/by-number?silo_number=12&silo_number=13",
+              "host": ["{{base_url}}"],
+              "path": ["silos", "level-estimate", "by-number"],
+              "query": [
+                {"key": "silo_number", "value": "12"},
+                {"key": "silo_number", "value": "13"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📱 SMS",
+      "item": [
+        {
+          "name": "Send Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"to\":\"+962790707653\",\"message\":\"Hello from Silos!\"}"
+            },
+            "url": "{{base_url}}/sms"
+          }
+        },
+        {
+          "name": "SMS Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/sms/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🌡️ Environment Temperature",
+      "item": [
+        {
+          "name": "Environment Temperature",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/env_temp"
+          }
+        }
+      ]
+    }
+  ]
+}

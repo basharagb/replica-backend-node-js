@@ -10,37 +10,82 @@ import { logger } from '../config/logger.js';
 // ==============================
 export class AlertRepository {
   
-  // 🔹 جلب جميع التنبيهات النشطة
-  async findActiveAlerts(endDate = null) {
+  // 🔹 جلب جميع التنبيهات النشطة مع دعم التصفح
+  async findActiveAlerts(options = {}) {
+    const { endDate = null, page = 1, limit = 50, windowHours = 2.0 } = options;
+    
     let query = `
       SELECT 
-        id, silo_id, level_index, limit_type, threshold_c, 
-        first_seen_at, last_seen_at, status
-      FROM alerts
-      WHERE status = 'active'
+        a.id, a.silo_id, a.level_index, a.limit_type, a.threshold_c, 
+        a.first_seen_at, a.last_seen_at, a.status, a.level_mask,
+        s.silo_number, s.silo_group_id,
+        sg.name as silo_group_name
+      FROM alerts a
+      INNER JOIN silos s ON a.silo_id = s.id
+      LEFT JOIN silo_groups sg ON s.silo_group_id = sg.id
+      WHERE a.status = 'active'
     `;
     
     const params = [];
     
     if (endDate) {
-      query += ' AND last_seen_at <= ?';
+      query += ' AND COALESCE(a.last_seen_at, a.first_seen_at) <= ?';
       params.push(endDate);
     }
     
-    query += ' ORDER BY last_seen_at DESC';
+    query += ' ORDER BY COALESCE(a.last_seen_at, a.first_seen_at) DESC';
+    
+    // Add pagination
+    const offset = (page - 1) * limit;
+    query += ' LIMIT ? OFFSET ?';
+    params.push(limit, offset);
     
     try {
+      // Get total count for pagination
+      let countQuery = `
+        SELECT COUNT(*) as total
+        FROM alerts a
+        INNER JOIN silos s ON a.silo_id = s.id
+        WHERE a.status = 'active'
+      `;
+      
+      const countParams = [];
+      if (endDate) {
+        countQuery += ' AND COALESCE(a.last_seen_at, a.first_seen_at) <= ?';
+        countParams.push(endDate);
+      }
+      
+      const [countResult] = await pool.query(countQuery, countParams);
+      const total = countResult[0].total;
+      
       const [rows] = await pool.query(query, params);
-      return rows.map(row => new Alert({
+      
+      const alerts = rows.map(row => ({
         id: row.id,
         siloId: row.silo_id,
+        siloNumber: row.silo_number,
+        siloGroupId: row.silo_group_id,
+        siloGroupName: row.silo_group_name,
         levelIndex: row.level_index,
+        levelMask: row.level_mask,
         limitType: row.limit_type,
         thresholdC: row.threshold_c,
         firstSeenAt: row.first_seen_at,
         lastSeenAt: row.last_seen_at,
         status: row.status
       }));
+      
+      return {
+        alerts,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+          hasNext: page < Math.ceil(total / limit),
+          hasPrev: page > 1
+        }
+      };
     } catch (err) {
       logger.error(`[AlertRepository.findActiveAlerts] ❌ ${err.message}`);
       throw new Error('Database error while fetching active alerts');
@@ -355,6 +400,61 @@ export class AlertRepository {
     } catch (err) {
       logger.error(`[AlertRepository.delete] ❌ ${err.message}`);
       throw new Error(`Database error while deleting alert ${id}`);
+    }
+  }
+
+  // 🔹 جلب لقطة من مستويات الصومعة في وقت التنبيه
+  async getSnapshotLevelsAtTimestamp(siloId, timestamp, windowHours = 2.0) {
+    const windowStart = new Date(timestamp.getTime() - (windowHours * 60 * 60 * 1000));
+    
+    const query = `
+      SELECT 
+        r.sensor_id, r.value_c, r.polled_at,
+        s.sensor_index, c.cable_index
+      FROM readings r
+      INNER JOIN sensors s ON r.sensor_id = s.id
+      INNER JOIN cables c ON s.cable_id = c.id
+      WHERE c.silo_id = ?
+        AND r.polled_at <= ?
+        AND r.polled_at >= ?
+      ORDER BY r.polled_at DESC, r.sensor_id ASC, r.id DESC
+    `;
+    
+    try {
+      const [rows] = await pool.query(query, [siloId, timestamp, windowStart]);
+      
+      // Get latest reading per sensor
+      const latestPerSensor = {};
+      for (const row of rows) {
+        if (!latestPerSensor[row.sensor_id]) {
+          latestPerSensor[row.sensor_id] = row;
+        }
+      }
+      
+      // Collapse across cables by level index using MAX temperature
+      const levelMax = {};
+      for (const reading of Object.values(latestPerSensor)) {
+        const level = reading.sensor_index;
+        const temp = reading.value_c;
+        
+        if (temp !== null && temp !== undefined) {
+          const roundedTemp = Math.round(temp * 100) / 100;
+          if (levelMax[level] === undefined || roundedTemp > levelMax[level]) {
+            levelMax[level] = roundedTemp;
+          }
+        }
+      }
+      
+      // Ensure all 8 levels are present (0-7)
+      const completeLevels = {};
+      for (let i = 0; i < 8; i++) {
+        completeLevels[i] = levelMax[i] || null;
+      }
+      
+      return completeLevels;
+    } catch (err) {
+      logger.error(`[AlertRepository.getSnapshotLevelsAtTimestamp] ❌ ${err.message}`);
+      throw new Error('Database error while fetching snapshot levels');
     }
   }
 

@@ -4,6 +4,7 @@
 import { AlertRepository } from '../../infrastructure/repositories/AlertRepository.js';
 import { responseFormatter } from '../../infrastructure/utils/responseFormatter.js';
 import { handleError } from '../../infrastructure/utils/errorHandler.js';
+import { formatAlertResponse, formatPaginatedResponse } from '../../infrastructure/utils/alertFormatter.js';
 
 const alertRepo = new AlertRepository();
 
@@ -12,13 +13,55 @@ const alertRepo = new AlertRepository();
 // ==============================
 export class AlertController {
 
-  // 🔹 جلب جميع التنبيهات النشطة
+  // 🔹 جلب جميع التنبيهات النشطة مع التنسيق المطابق للنظام القديم
   async getActiveAlerts(req, res) {
     try {
-      const { end } = req.query;
+      const { 
+        window_hours = 2.0, 
+        page = 1, 
+        limit = 50,
+        end 
+      } = req.query;
       
-      const alerts = await alertRepo.findActiveAlerts(end);
-      res.json(responseFormatter.success(alerts, 'تم جلب التنبيهات النشطة بنجاح'));
+      const options = {
+        endDate: end,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        windowHours: parseFloat(window_hours)
+      };
+      
+      const result = await alertRepo.findActiveAlerts(options);
+      
+      if (!result.alerts || result.alerts.length === 0) {
+        return res.json([]);
+      }
+      
+      // Format each alert to match old Python system structure
+      const formattedAlerts = [];
+      
+      for (const alert of result.alerts) {
+        const timestampAnchor = alert.lastSeenAt || alert.firstSeenAt || new Date();
+        
+        // Get snapshot of silo levels at alert time
+        const levelValues = await alertRepo.getSnapshotLevelsAtTimestamp(
+          alert.siloId, 
+          timestampAnchor, 
+          options.windowHours
+        );
+        
+        // Format the alert response to match Python system
+        const formattedAlert = formatAlertResponse(alert, levelValues, null);
+        formattedAlerts.push(formattedAlert);
+      }
+      
+      // Return paginated response in old system format
+      const response = formatPaginatedResponse(
+        formattedAlerts, 
+        result.pagination, 
+        'Active alerts retrieved successfully'
+      );
+      
+      res.json(response);
     } catch (err) {
       handleError(res, err);
     }
