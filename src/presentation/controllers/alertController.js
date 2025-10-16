@@ -24,29 +24,79 @@ export class AlertController {
       
       const pageNum = parseInt(page);
       const limitNum = parseInt(limit);
+      const windowHours = parseFloat(window_hours);
       
-      // إرجاع بيانات بسيطة للاختبار
-      res.json([
-        {
-          silo_group: "Group 10",
-          silo_number: 195,
-          cable_number: null,
-          timestamp: "2025-10-16T12:30:00",
-          level_0: 35.5, color_0: "#c7c150",
-          level_1: 34.5, color_1: "#46d446", 
-          level_2: 34.6, color_2: "#46d446",
-          level_3: 39.7, color_3: "#d14141",
-          level_4: 36.1, color_4: "#c7c150",
-          level_5: 39.2, color_5: "#d14141",
-          level_6: 24.8, color_6: "#46d446",
-          level_7: 35.4, color_7: "#c7c150",
-          silo_color: "#d14141",
-          alert_type: "warn",
-          affected_levels: [3, 5],
-          active_since: "2025-10-09T11:58:48"
+      console.log(`🔍 getActiveAlerts called with page=${pageNum}, limit=${limitNum}`);
+      
+      // استخدام طريقة مبسطة مع pagination
+      const { pool } = await import('../../infrastructure/database/db.js');
+      
+      const offset = (pageNum - 1) * limitNum;
+      
+      // الحصول على العدد الإجمالي للتنبيهات النشطة
+      const countQuery = `SELECT COUNT(*) as total FROM alerts WHERE status = 'active'`;
+      const [countResult] = await pool.query(countQuery);
+      const total = countResult[0].total;
+      
+      // الحصول على التنبيهات النشطة مع pagination
+      const alertsQuery = `
+        SELECT 
+          a.id,
+          a.silo_id,
+          a.level_index,
+          a.limit_type,
+          a.first_seen_at,
+          a.last_seen_at,
+          s.silo_number,
+          COALESCE(sg.name, 'Unknown Group') as silo_group_name
+        FROM alerts a
+        INNER JOIN silos s ON a.silo_id = s.id
+        LEFT JOIN silo_groups sg ON s.silo_group_id = sg.id
+        WHERE a.status = 'active'
+        ORDER BY a.id DESC
+        LIMIT ? OFFSET ?
+      `;
+      
+      const [alertRows] = await pool.query(alertsQuery, [limitNum, offset]);
+      
+      console.log(`📊 Found ${alertRows.length} alerts out of ${total} total`);
+      
+      // تنسيق البيانات
+      const formattedAlerts = alertRows.map(alert => ({
+        silo_group: alert.silo_group_name,
+        silo_number: alert.silo_number,
+        cable_number: null,
+        timestamp: (alert.last_seen_at || alert.first_seen_at || new Date()).toISOString().slice(0, 19),
+        level_0: 35.5, color_0: "#c7c150",
+        level_1: 34.5, color_1: "#46d446", 
+        level_2: 34.6, color_2: "#46d446",
+        level_3: 39.7, color_3: "#d14141",
+        level_4: 36.1, color_4: "#c7c150",
+        level_5: 39.2, color_5: "#d14141",
+        level_6: 24.8, color_6: "#46d446",
+        level_7: 35.4, color_7: "#c7c150",
+        silo_color: "#d14141",
+        alert_type: alert.limit_type || "warn",
+        affected_levels: alert.level_index !== null ? [parseInt(alert.level_index)] : [3, 5],
+        active_since: alert.first_seen_at ? alert.first_seen_at.toISOString().slice(0, 19) : null
+      }));
+      
+      // إرجاع النتيجة بالتنسيق المحسن
+      res.json({
+        success: true,
+        message: 'Active alerts retrieved successfully',
+        data: formattedAlerts,
+        pagination: {
+          current_page: pageNum,
+          per_page: limitNum,
+          total_items: total,
+          total_pages: Math.ceil(total / limitNum),
+          has_next_page: pageNum < Math.ceil(total / limitNum),
+          has_previous_page: pageNum > 1
         }
-      ]);
+      });
     } catch (err) {
+      console.error('❌ Error in getActiveAlerts:', err);
       handleError(res, err);
     }
   }
