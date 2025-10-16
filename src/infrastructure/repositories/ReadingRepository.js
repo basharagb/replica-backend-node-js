@@ -13,33 +13,31 @@ export class ReadingRepository {
   // 🔹 جلب القراءات حسب معرف المستشعر
   async findBySensorId(sensorIds, startDate = null, endDate = null) {
     let query = `
-      SELECT id, sensor_id, hour_start, value_c, sample_at
-      FROM readings
+      SELECT sensor_id, value_c, polled_at
+      FROM readings_raw
       WHERE sensor_id IN (${sensorIds.map(() => '?').join(',')})
     `;
     
     const params = [...sensorIds];
     
     if (startDate) {
-      query += ' AND sample_at >= ?';
+      query += ' AND polled_at >= ?';
       params.push(startDate);
     }
     
     if (endDate) {
-      query += ' AND sample_at <= ?';
+      query += ' AND polled_at <= ?';
       params.push(endDate);
     }
     
-    query += ' ORDER BY sample_at DESC';
+    query += ' ORDER BY polled_at DESC';
     
     try {
       const [rows] = await pool.query(query, params);
-      return rows.map(row => new Reading({
-        id: row.id,
-        sensorId: row.sensor_id,
-        hourStart: row.hour_start,
-        valueC: row.value_c,
-        sampleAt: row.sample_at
+      return rows.map(row => ({
+        sensor_id: row.sensor_id,
+        temperature: parseFloat(row.value_c),
+        timestamp: row.polled_at
       }));
     } catch (err) {
       logger.error(`[ReadingRepository.findBySensorId] ❌ ${err.message}`);
@@ -50,40 +48,38 @@ export class ReadingRepository {
   // 🔹 جلب أحدث القراءات حسب معرف المستشعر
   async findLatestBySensorId(sensorIds, startDate = null, endDate = null) {
     let query = `
-      SELECT r1.id, r1.sensor_id, r1.hour_start, r1.value_c, r1.sample_at
-      FROM readings r1
+      SELECT r1.sensor_id, r1.value_c, r1.polled_at
+      FROM readings_raw r1
       INNER JOIN (
-        SELECT sensor_id, MAX(sample_at) as max_sample_at
-        FROM readings
+        SELECT sensor_id, MAX(polled_at) as max_polled_at
+        FROM readings_raw
         WHERE sensor_id IN (${sensorIds.map(() => '?').join(',')})
     `;
     
     const params = [...sensorIds];
     
     if (startDate) {
-      query += ' AND sample_at >= ?';
+      query += ' AND polled_at >= ?';
       params.push(startDate);
     }
     
     if (endDate) {
-      query += ' AND sample_at <= ?';
+      query += ' AND polled_at <= ?';
       params.push(endDate);
     }
     
     query += `
         GROUP BY sensor_id
-      ) r2 ON r1.sensor_id = r2.sensor_id AND r1.sample_at = r2.max_sample_at
+      ) r2 ON r1.sensor_id = r2.sensor_id AND r1.polled_at = r2.max_polled_at
       ORDER BY r1.sensor_id
     `;
     
     try {
       const [rows] = await pool.query(query, params);
-      return rows.map(row => new Reading({
-        id: row.id,
-        sensorId: row.sensor_id,
-        hourStart: row.hour_start,
-        valueC: row.value_c,
-        sampleAt: row.sample_at
+      return rows.map(row => ({
+        sensor_id: row.sensor_id,
+        temperature: parseFloat(row.value_c),
+        timestamp: row.polled_at
       }));
     } catch (err) {
       logger.error(`[ReadingRepository.findLatestBySensorId] ❌ ${err.message}`);
@@ -94,23 +90,23 @@ export class ReadingRepository {
   // 🔹 جلب أعلى القراءات حسب معرف المستشعر
   async findMaxBySensorId(sensorIds, startDate = null, endDate = null) {
     let query = `
-      SELECT r1.id, r1.sensor_id, r1.hour_start, r1.value_c, r1.sample_at
-      FROM readings r1
+      SELECT r1.sensor_id, r1.value_c, r1.polled_at
+      FROM readings_raw r1
       INNER JOIN (
         SELECT sensor_id, MAX(value_c) as max_value_c
-        FROM readings
+        FROM readings_raw
         WHERE sensor_id IN (${sensorIds.map(() => '?').join(',')})
     `;
     
     const params = [...sensorIds];
     
     if (startDate) {
-      query += ' AND sample_at >= ?';
+      query += ' AND polled_at >= ?';
       params.push(startDate);
     }
     
     if (endDate) {
-      query += ' AND sample_at <= ?';
+      query += ' AND polled_at <= ?';
       params.push(endDate);
     }
     
@@ -122,12 +118,10 @@ export class ReadingRepository {
     
     try {
       const [rows] = await pool.query(query, params);
-      return rows.map(row => new Reading({
-        id: row.id,
-        sensorId: row.sensor_id,
-        hourStart: row.hour_start,
-        valueC: row.value_c,
-        sampleAt: row.sample_at
+      return rows.map(row => ({
+        sensor_id: row.sensor_id,
+        temperature: parseFloat(row.value_c),
+        timestamp: row.polled_at
       }));
     } catch (err) {
       logger.error(`[ReadingRepository.findMaxBySensorId] ❌ ${err.message}`);
@@ -176,12 +170,12 @@ export class ReadingRepository {
   // 🔹 جلب أحدث القراءات حسب معرف الكابل
   async findLatestByCableId(cableIds, startDate = null, endDate = null) {
     let query = `
-      SELECT r1.id, r1.sensor_id, r1.hour_start, r1.value_c, r1.sample_at
-      FROM readings r1
+      SELECT r1.sensor_id, r1.value_c, r1.polled_at
+      FROM readings_raw r1
       INNER JOIN sensors s ON r1.sensor_id = s.id
       INNER JOIN (
-        SELECT r.sensor_id, MAX(r.sample_at) as max_sample_at
-        FROM readings r
+        SELECT r.sensor_id, MAX(r.polled_at) as max_polled_at
+        FROM readings_raw r
         INNER JOIN sensors s2 ON r.sensor_id = s2.id
         WHERE s2.cable_id IN (${cableIds.map(() => '?').join(',')})
     `;
@@ -189,18 +183,18 @@ export class ReadingRepository {
     const params = [...cableIds];
     
     if (startDate) {
-      query += ' AND r.sample_at >= ?';
+      query += ' AND r.polled_at >= ?';
       params.push(startDate);
     }
     
     if (endDate) {
-      query += ' AND r.sample_at <= ?';
+      query += ' AND r.polled_at <= ?';
       params.push(endDate);
     }
     
     query += `
         GROUP BY r.sensor_id
-      ) r2 ON r1.sensor_id = r2.sensor_id AND r1.sample_at = r2.max_sample_at
+      ) r2 ON r1.sensor_id = r2.sensor_id AND r1.polled_at = r2.max_polled_at
       WHERE s.cable_id IN (${cableIds.map(() => '?').join(',')})
       ORDER BY s.cable_id, s.sensor_index
     `;
@@ -209,12 +203,10 @@ export class ReadingRepository {
     
     try {
       const [rows] = await pool.query(query, params);
-      return rows.map(row => new Reading({
-        id: row.id,
-        sensorId: row.sensor_id,
-        hourStart: row.hour_start,
-        valueC: row.value_c,
-        sampleAt: row.sample_at
+      return rows.map(row => ({
+        sensor_id: row.sensor_id,
+        temperature: parseFloat(row.value_c),
+        timestamp: row.polled_at
       }));
     } catch (err) {
       logger.error(`[ReadingRepository.findLatestByCableId] ❌ ${err.message}`);
@@ -313,13 +305,13 @@ export class ReadingRepository {
   // 🔹 جلب أحدث القراءات حسب معرف الصومعة
   async findLatestBySiloId(siloIds, startDate = null, endDate = null) {
     let query = `
-      SELECT r1.id, r1.sensor_id, r1.hour_start, r1.value_c, r1.sample_at
-      FROM readings r1
+      SELECT r1.sensor_id, r1.value_c, r1.polled_at
+      FROM readings_raw r1
       INNER JOIN sensors s ON r1.sensor_id = s.id
       INNER JOIN cables c ON s.cable_id = c.id
       INNER JOIN (
-        SELECT r.sensor_id, MAX(r.sample_at) as max_sample_at
-        FROM readings r
+        SELECT r.sensor_id, MAX(r.polled_at) as max_polled_at
+        FROM readings_raw r
         INNER JOIN sensors s2 ON r.sensor_id = s2.id
         INNER JOIN cables c2 ON s2.cable_id = c2.id
         WHERE c2.silo_id IN (${siloIds.map(() => '?').join(',')})
@@ -328,18 +320,18 @@ export class ReadingRepository {
     const params = [...siloIds];
     
     if (startDate) {
-      query += ' AND r.sample_at >= ?';
+      query += ' AND r.polled_at >= ?';
       params.push(startDate);
     }
     
     if (endDate) {
-      query += ' AND r.sample_at <= ?';
+      query += ' AND r.polled_at <= ?';
       params.push(endDate);
     }
     
     query += `
         GROUP BY r.sensor_id
-      ) r2 ON r1.sensor_id = r2.sensor_id AND r1.sample_at = r2.max_sample_at
+      ) r2 ON r1.sensor_id = r2.sensor_id AND r1.polled_at = r2.max_polled_at
       WHERE c.silo_id IN (${siloIds.map(() => '?').join(',')})
       ORDER BY c.silo_id, c.cable_index, s.sensor_index
     `;
@@ -348,12 +340,10 @@ export class ReadingRepository {
     
     try {
       const [rows] = await pool.query(query, params);
-      return rows.map(row => new Reading({
-        id: row.id,
-        sensorId: row.sensor_id,
-        hourStart: row.hour_start,
-        valueC: row.value_c,
-        sampleAt: row.sample_at
+      return rows.map(row => ({
+        sensor_id: row.sensor_id,
+        temperature: parseFloat(row.value_c),
+        timestamp: row.polled_at
       }));
     } catch (err) {
       logger.error(`[ReadingRepository.findLatestBySiloId] ❌ ${err.message}`);
@@ -460,17 +450,17 @@ export class ReadingRepository {
         c.silo_id,
         s.sensor_index,
         AVG(r.value_c) as avg_value_c,
-        COUNT(r.id) as reading_count,
-        r.sample_at
-      FROM readings r
+        COUNT(r.sensor_id) as reading_count,
+        r.polled_at
+      FROM readings_raw r
       INNER JOIN sensors s ON r.sensor_id = s.id
       INNER JOIN cables c ON s.cable_id = c.id
       INNER JOIN (
         SELECT 
           c2.silo_id,
           s2.sensor_index,
-          MAX(r2.sample_at) as max_sample_at
-        FROM readings r2
+          MAX(r2.polled_at) as max_polled_at
+        FROM readings_raw r2
         INNER JOIN sensors s2 ON r2.sensor_id = s2.id
         INNER JOIN cables c2 ON s2.cable_id = c2.id
         WHERE c2.silo_id IN (${siloIds.map(() => '?').join(',')})
@@ -479,12 +469,12 @@ export class ReadingRepository {
     const params = [...siloIds];
     
     if (startDate) {
-      query += ' AND r2.sample_at >= ?';
+      query += ' AND r2.polled_at >= ?';
       params.push(startDate);
     }
     
     if (endDate) {
-      query += ' AND r2.sample_at <= ?';
+      query += ' AND r2.polled_at <= ?';
       params.push(endDate);
     }
     
@@ -492,9 +482,9 @@ export class ReadingRepository {
         GROUP BY c2.silo_id, s2.sensor_index
       ) latest ON c.silo_id = latest.silo_id 
                  AND s.sensor_index = latest.sensor_index 
-                 AND r.sample_at = latest.max_sample_at
+                 AND r.polled_at = latest.max_polled_at
       WHERE c.silo_id IN (${siloIds.map(() => '?').join(',')})
-      GROUP BY c.silo_id, s.sensor_index, r.sample_at
+      GROUP BY c.silo_id, s.sensor_index, r.polled_at
       ORDER BY c.silo_id, s.sensor_index
     `;
     
@@ -502,7 +492,13 @@ export class ReadingRepository {
     
     try {
       const [rows] = await pool.query(query, params);
-      return rows;
+      return rows.map(row => ({
+        silo_id: row.silo_id,
+        sensor_index: row.sensor_index,
+        avg_temperature: parseFloat(row.avg_value_c),
+        reading_count: row.reading_count,
+        timestamp: row.polled_at
+      }));
     } catch (err) {
       logger.error(`[ReadingRepository.findLatestAvgBySiloId] ❌ ${err.message}`);
       throw new Error('Database error while fetching latest average readings by silo');
