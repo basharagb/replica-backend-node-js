@@ -7,8 +7,8 @@
  * Phone: +962780853195
  */
 
-const request = require('supertest');
-const app = require('../../app');
+import request from 'supertest';
+import app from '../../devApp.js';
 
 describe('🌾 Industrial Silo Monitoring API - Unit Tests', () => {
   

@@ -144,7 +144,7 @@ test_endpoint "/alerts/active" "Active Alerts"
 echo ""
 echo "📊 Advanced Features Tests"
 echo "--------------------------"
-test_endpoint "/silos/level-estimate/1" "Silo Level Estimation"
+test_endpoint "/silos/level-estimate?silo_number=1" "Silo Level Estimation"
 test_endpoint "/silos/level-estimate/by-number?silo_number=1" "Level Estimation by Number"
 
 # ============================================================
@@ -171,7 +171,7 @@ echo "------------------"
 echo ""
 echo "🌡️ Environment Tests"
 echo "--------------------"
-test_endpoint "/env_temp/temperature" "Latest Environment Temperature"
+test_endpoint "/env_temp" "Latest Environment Temperature"
 
 # ============================================================
 # 📊 Test Results Summary

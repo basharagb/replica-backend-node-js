@@ -680,3 +680,6 @@ process.on('SIGTERM', () => {
   console.log('\\n🛑 Shutting down gracefully...');
   process.exit(0);
 });
+
+// Export app for testing
+export default app;

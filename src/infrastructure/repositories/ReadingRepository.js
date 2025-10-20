@@ -14,7 +14,7 @@ export class ReadingRepository {
   async findBySensorId(sensorIds, startDate = null, endDate = null) {
     let query = `
       SELECT id, sensor_id, hour_start, value_c, sample_at
-      FROM readings
+      FROM readings_raw
       WHERE sensor_id IN (${sensorIds.map(() => '?').join(',')})
     `;
     
@@ -51,10 +51,10 @@ export class ReadingRepository {
   async findLatestBySensorId(sensorIds, startDate = null, endDate = null) {
     let query = `
       SELECT r1.id, r1.sensor_id, r1.hour_start, r1.value_c, r1.sample_at
-      FROM readings r1
+      FROM readings_raw r1
       INNER JOIN (
         SELECT sensor_id, MAX(sample_at) as max_sample_at
-        FROM readings
+        FROM readings_raw
         WHERE sensor_id IN (${sensorIds.map(() => '?').join(',')})
     `;
     
@@ -95,10 +95,10 @@ export class ReadingRepository {
   async findMaxBySensorId(sensorIds, startDate = null, endDate = null) {
     let query = `
       SELECT r1.id, r1.sensor_id, r1.hour_start, r1.value_c, r1.sample_at
-      FROM readings r1
+      FROM readings_raw r1
       INNER JOIN (
         SELECT sensor_id, MAX(value_c) as max_value_c
-        FROM readings
+        FROM readings_raw
         WHERE sensor_id IN (${sensorIds.map(() => '?').join(',')})
     `;
     
@@ -139,7 +139,7 @@ export class ReadingRepository {
   async findByCableId(cableIds, startDate = null, endDate = null) {
     let query = `
       SELECT r.id, r.sensor_id, r.hour_start, r.value_c, r.sample_at
-      FROM readings r
+      FROM readings_raw r
       INNER JOIN sensors s ON r.sensor_id = s.id
       WHERE s.cable_id IN (${cableIds.map(() => '?').join(',')})
     `;
@@ -177,11 +177,11 @@ export class ReadingRepository {
   async findLatestByCableId(cableIds, startDate = null, endDate = null) {
     let query = `
       SELECT r1.id, r1.sensor_id, r1.hour_start, r1.value_c, r1.sample_at
-      FROM readings r1
+      FROM readings_raw r1
       INNER JOIN sensors s ON r1.sensor_id = s.id
       INNER JOIN (
         SELECT r.sensor_id, MAX(r.sample_at) as max_sample_at
-        FROM readings r
+        FROM readings_raw r
         INNER JOIN sensors s2 ON r.sensor_id = s2.id
         WHERE s2.cable_id IN (${cableIds.map(() => '?').join(',')})
     `;
@@ -226,11 +226,11 @@ export class ReadingRepository {
   async findMaxByCableId(cableIds, startDate = null, endDate = null) {
     let query = `
       SELECT r1.id, r1.sensor_id, r1.hour_start, r1.value_c, r1.sample_at
-      FROM readings r1
+      FROM readings_raw r1
       INNER JOIN sensors s ON r1.sensor_id = s.id
       INNER JOIN (
         SELECT r.sensor_id, MAX(r.value_c) as max_value_c
-        FROM readings r
+        FROM readings_raw r
         INNER JOIN sensors s2 ON r.sensor_id = s2.id
         WHERE s2.cable_id IN (${cableIds.map(() => '?').join(',')})
     `;
@@ -275,7 +275,7 @@ export class ReadingRepository {
   async findBySiloId(siloIds, startDate = null, endDate = null) {
     let query = `
       SELECT r.id, r.sensor_id, r.hour_start, r.value_c, r.sample_at
-      FROM readings r
+      FROM readings_raw r
       INNER JOIN sensors s ON r.sensor_id = s.id
       INNER JOIN cables c ON s.cable_id = c.id
       WHERE c.silo_id IN (${siloIds.map(() => '?').join(',')})
@@ -314,12 +314,12 @@ export class ReadingRepository {
   async findLatestBySiloId(siloIds, startDate = null, endDate = null) {
     let query = `
       SELECT r1.id, r1.sensor_id, r1.hour_start, r1.value_c, r1.sample_at
-      FROM readings r1
+      FROM readings_raw r1
       INNER JOIN sensors s ON r1.sensor_id = s.id
       INNER JOIN cables c ON s.cable_id = c.id
       INNER JOIN (
         SELECT r.sensor_id, MAX(r.sample_at) as max_sample_at
-        FROM readings r
+        FROM readings_raw r
         INNER JOIN sensors s2 ON r.sensor_id = s2.id
         INNER JOIN cables c2 ON s2.cable_id = c2.id
         WHERE c2.silo_id IN (${siloIds.map(() => '?').join(',')})
@@ -365,12 +365,12 @@ export class ReadingRepository {
   async findMaxBySiloId(siloIds, startDate = null, endDate = null) {
     let query = `
       SELECT r1.id, r1.sensor_id, r1.hour_start, r1.value_c, r1.sample_at
-      FROM readings r1
+      FROM readings_raw r1
       INNER JOIN sensors s ON r1.sensor_id = s.id
       INNER JOIN cables c ON s.cable_id = c.id
       INNER JOIN (
         SELECT r.sensor_id, MAX(r.value_c) as max_value_c
-        FROM readings r
+        FROM readings_raw r
         INNER JOIN sensors s2 ON r.sensor_id = s2.id
         INNER JOIN cables c2 ON s2.cable_id = c2.id
         WHERE c2.silo_id IN (${siloIds.map(() => '?').join(',')})
@@ -421,7 +421,7 @@ export class ReadingRepository {
         AVG(r.value_c) as avg_value_c,
         COUNT(r.id) as reading_count,
         MAX(r.sample_at) as latest_sample_at
-      FROM readings r
+      FROM readings_raw r
       INNER JOIN sensors s ON r.sensor_id = s.id
       INNER JOIN cables c ON s.cable_id = c.id
       WHERE c.silo_id IN (${siloIds.map(() => '?').join(',')})
@@ -462,7 +462,7 @@ export class ReadingRepository {
         AVG(r.value_c) as avg_value_c,
         COUNT(r.id) as reading_count,
         r.sample_at
-      FROM readings r
+      FROM readings_raw r
       INNER JOIN sensors s ON r.sensor_id = s.id
       INNER JOIN cables c ON s.cable_id = c.id
       INNER JOIN (
@@ -470,7 +470,7 @@ export class ReadingRepository {
           c2.silo_id,
           s2.sensor_index,
           MAX(r2.sample_at) as max_sample_at
-        FROM readings r2
+        FROM readings_raw r2
         INNER JOIN sensors s2 ON r2.sensor_id = s2.id
         INNER JOIN cables c2 ON s2.cable_id = c2.id
         WHERE c2.silo_id IN (${siloIds.map(() => '?').join(',')})
@@ -518,7 +518,7 @@ export class ReadingRepository {
         MAX(r.value_c) as max_value_c,
         COUNT(r.id) as reading_count,
         r.sample_at
-      FROM readings r
+      FROM readings_raw r
       INNER JOIN sensors s ON r.sensor_id = s.id
       INNER JOIN cables c ON s.cable_id = c.id
       WHERE c.silo_id IN (${siloIds.map(() => '?').join(',')})
@@ -554,7 +554,7 @@ export class ReadingRepository {
   async findBySiloNumber(siloNumbers, startDate = null, endDate = null) {
     let query = `
       SELECT r.id, r.sensor_id, r.hour_start, r.value_c, r.sample_at
-      FROM readings r
+      FROM readings_raw r
       INNER JOIN sensors s ON r.sensor_id = s.id
       INNER JOIN cables c ON s.cable_id = c.id
       INNER JOIN silos silo ON c.silo_id = silo.id
@@ -594,7 +594,7 @@ export class ReadingRepository {
   async findBySiloGroupId(siloGroupIds, startDate = null, endDate = null) {
     let query = `
       SELECT r.id, r.sensor_id, r.hour_start, r.value_c, r.sample_at
-      FROM readings r
+      FROM readings_raw r
       INNER JOIN sensors s ON r.sensor_id = s.id
       INNER JOIN cables c ON s.cable_id = c.id
       INNER JOIN silos silo ON c.silo_id = silo.id

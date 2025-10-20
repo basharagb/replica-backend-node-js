@@ -35,7 +35,7 @@ export class ReadingService {
           silo.silo_id,
           silo.silo_number,
           silo.silo_name
-        FROM readings r
+        FROM readings_raw r
         INNER JOIN sensors s ON r.sensor_id = s.sensor_id
         INNER JOIN cables c ON s.cable_id = c.cable_id
         INNER JOIN silos silo ON c.silo_id = silo.silo_id
@@ -90,7 +90,7 @@ export class ReadingService {
             MAX(r.temperature) as max_temperature,
             COUNT(*) as reading_count,
             MAX(r.timestamp) as latest_timestamp
-          FROM readings r
+          FROM readings_raw r
           INNER JOIN sensors s ON r.sensor_id = s.sensor_id
           INNER JOIN cables c ON s.cable_id = c.cable_id
           WHERE c.cable_id IN (${cableIds.map(() => '?').join(',')})
@@ -104,7 +104,7 @@ export class ReadingService {
             c.cable_id,
             c.cable_number,
             silo.silo_number
-          FROM readings r
+          FROM readings_raw r
           INNER JOIN sensors s ON r.sensor_id = s.sensor_id
           INNER JOIN cables c ON s.cable_id = c.cable_id
           INNER JOIN silos silo ON c.silo_id = silo.silo_id
@@ -163,7 +163,7 @@ export class ReadingService {
             COUNT(*) as reading_count,
             COUNT(DISTINCT c.cable_id) as cable_count,
             MAX(r.timestamp) as latest_timestamp
-          FROM readings r
+          FROM readings_raw r
           INNER JOIN sensors s ON r.sensor_id = s.sensor_id
           INNER JOIN cables c ON s.cable_id = c.cable_id
           INNER JOIN silos silo ON c.silo_id = silo.silo_id
@@ -181,7 +181,7 @@ export class ReadingService {
             silo.silo_id,
             silo.silo_number,
             silo.silo_name
-          FROM readings r
+          FROM readings_raw r
           INNER JOIN sensors s ON r.sensor_id = s.sensor_id
           INNER JOIN cables c ON s.cable_id = c.cable_id
           INNER JOIN silos silo ON c.silo_id = silo.silo_id
@@ -253,7 +253,7 @@ export class ReadingService {
             WHEN r.temperature > 45 THEN 'warning'
             ELSE 'normal'
           END as status
-        FROM readings r
+        FROM readings_raw r
         INNER JOIN sensors s ON r.sensor_id = s.sensor_id
         INNER JOIN cables c ON s.cable_id = c.cable_id
         INNER JOIN silos silo ON c.silo_id = silo.silo_id
@@ -296,7 +296,7 @@ export class ReadingService {
           AVG(r.temperature) as avg_temperature,
           MIN(r.temperature) as min_temperature,
           COUNT(*) as reading_count
-        FROM readings r
+        FROM readings_raw r
         INNER JOIN sensors s ON r.sensor_id = s.sensor_id
         INNER JOIN cables c ON s.cable_id = c.cable_id
         INNER JOIN silos silo ON c.silo_id = silo.silo_id
@@ -378,7 +378,7 @@ export class ReadingService {
           SUM(CASE WHEN r.temperature = -127.0 THEN 1 ELSE 0 END) as disconnected_readings,
           SUM(CASE WHEN r.temperature > 60 THEN 1 ELSE 0 END) as critical_readings,
           SUM(CASE WHEN r.temperature > 45 AND r.temperature <= 60 THEN 1 ELSE 0 END) as warning_readings
-        FROM readings r
+        FROM readings_raw r
         INNER JOIN sensors s ON r.sensor_id = s.sensor_id
         INNER JOIN cables c ON s.cable_id = c.cable_id
         INNER JOIN silos silo ON c.silo_id = silo.silo_id

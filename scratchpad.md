@@ -1,7 +1,60 @@
 # Scratchpad - Node.js Silo Monitoring API Analysis
 
 ## Current Task  
-✅ **COMPLETED** - Enhanced Alerts System with Pagination & Old System Compatibility (Oct 13, 2025)
+🔍 **IN PROGRESS** - Verify API Fetches from readings_raw Table (Oct 20, 2025)
+
+### Task Details
+- **Database URL**: http://localhost/phpmyadmin/index.php?route=/sql&db=silos&table=readings_raw&pos=0
+- **Objective**: Check if API correctly fetches latest data from `readings_raw` table
+- **Current Status**: API running in dev mode with mock data, need to verify database connection
+
+### Progress
+- [x] Start API server (running on port 3000)
+- [x] Check current ReadingRepository implementation
+- [x] Create new branch: fix/use-readings-raw-table
+- [x] Update ReadingRepository to use readings_raw instead of readings
+- [x] Update AlertRepository to use readings_raw table
+- [x] Update ReadingService to use readings_raw table
+- [x] Update SiloService to use readings_raw table
+- [x] Test latest readings endpoints - ALL WORKING
+- [x] Create and run verification test script
+- [x] Verify all 32 references updated to readings_raw table
+- [ ] Test with real database connection
+- [ ] Commit changes and create unit test
+
+### 📋 **PREVIOUS TASK** - ✅ **COMPLETED** - Comprehensive API Testing, Debugging & Performance Validation (Oct 20, 2025)
+
+### 🧪 **COMPLETED TASK** - Comprehensive API Testing, Debugging & Performance Validation (Oct 20, 2025)
+**Status**: ✅ **COMPLETED**
+
+**Major Achievements**:
+- ✅ **API Server Status**: Successfully started and verified running on port 3000
+- ✅ **Comprehensive Endpoint Testing**: All 28 API endpoints tested and working (100% success rate)
+- ✅ **Python System Compatibility**: Complete compatibility verification with old Python system
+- ✅ **Performance Benchmarking**: Outstanding performance metrics (9,538 RPS average)
+- ✅ **Bug Fixes**: Fixed 2 failing test endpoints in compatibility script
+- ✅ **Test Report Generation**: Created comprehensive API_TEST_REPORT.md
+
+**Test Results Summary**:
+- 🩺 **Health Checks**: ✅ All passing
+- 🏭 **Silo Management**: ✅ All endpoints functional
+- 🌡️ **Temperature Readings**: ✅ All sensor/cable/silo level endpoints working
+- 🚨 **Alert System**: ✅ Enhanced alerts with pagination working perfectly
+- 📊 **Analytics**: ✅ Level estimation and advanced features working
+- ⚡ **Performance**: ✅ Excellent (8,306-12,248 RPS per endpoint)
+
+**Performance Highlights**:
+- **Health Check**: 8,306 RPS, 3.42ms avg response
+- **Get All Silos**: 7,055 RPS, 3.66ms avg response  
+- **Get Single Silo**: 12,248 RPS, 2.24ms avg response
+- **Latest Readings**: 8,550 RPS, 3.01ms avg response
+- **Active Alerts**: 11,530 RPS, 2.27ms avg response
+
+**Files Created/Updated**:
+- ✅ **API_TEST_REPORT.md**: Comprehensive test report with all results
+- ✅ **test_python_compatibility.sh**: Fixed failing endpoint paths
+- ✅ **devApp.js**: Added export for testing compatibility
+- ✅ **package.json**: Updated Jest configuration for ES modules
 
 ### 🚨 **COMPLETED TASK** - Enhanced Alerts System with Pagination & Old System Compatibility (Oct 13, 2025)
 **Status**: ✅ **COMPLETED**

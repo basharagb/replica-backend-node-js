@@ -161,7 +161,7 @@ export class SiloService {
         MAX(r.temperature) as max_temp,
         STDDEV(r.temperature) as temp_stddev,
         COUNT(DISTINCT r.sensor_id) as active_sensors
-      FROM readings r
+      FROM readings_raw r
       INNER JOIN sensors sen ON r.sensor_id = sen.sensor_id
       INNER JOIN cables c ON sen.cable_id = c.cable_id
       WHERE c.silo_id = ?
@@ -251,7 +251,7 @@ export class SiloService {
           MAX(r.temperature) as max_temp,
           COUNT(*) as reading_count,
           COUNT(DISTINCT r.sensor_id) as active_sensors
-        FROM readings r
+        FROM readings_raw r
         INNER JOIN sensors sen ON r.sensor_id = sen.sensor_id
         INNER JOIN cables c ON sen.cable_id = c.cable_id
         WHERE c.silo_id = ?

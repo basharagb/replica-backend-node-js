@@ -411,7 +411,7 @@ export class AlertRepository {
       SELECT 
         r.sensor_id, r.value_c, r.polled_at,
         s.sensor_index, c.cable_index
-      FROM readings r
+      FROM readings_raw r
       INNER JOIN sensors s ON r.sensor_id = s.id
       INNER JOIN cables c ON s.cable_id = c.id
       WHERE c.silo_id = ?
