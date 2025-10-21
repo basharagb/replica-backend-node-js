@@ -209,7 +209,21 @@ export class ReadingController {
       
       const { start, end } = req.query;
       const readings = await reportsRepo.findBySiloNumber(siloNumbers, start, end);
-      res.json(readings);
+      
+      // Format to sensor-level format matching old Python system
+      const formattedData = readings.map(reading => ({
+        sensor_id: reading.sensorId,
+        group_id: reading.siloGroup,
+        silo_number: reading.siloNumber,
+        cable_index: reading.cableIndex,
+        level_index: reading.sensorIndex,
+        state: this._getTemperatureState(reading.temperature),
+        color: this._getTemperatureColor(reading.temperature),
+        temperature: reading.temperature ? parseFloat(reading.temperature.toFixed(2)) : null,
+        timestamp: reading.timestamp
+      }));
+      
+      res.json(formattedData);
     } catch (err) {
       handleError(res, err);
     }
@@ -251,10 +265,24 @@ export class ReadingController {
         : [parseInt(req.query.silo_number)];
       
       const { start, end } = req.query;
-      const readings = await reportsRepo.findMaxBySiloNumber(siloNumbers, start, end);
+      const readings = await reportsRepo.findBySiloNumber(siloNumbers, start, end);
       
-      // Format to match old Python system format_levels_row structure
-      const formattedData = this._formatReportsToLevelsStructure(readings);
+      // Get max temperature per sensor per day (matching old Python logic)
+      const maxReadings = this._getMaxReadingsPerSensorPerDay(readings);
+      
+      // Format to sensor-level format matching old Python system
+      const formattedData = maxReadings.map(reading => ({
+        sensor_id: reading.sensorId,
+        group_id: reading.siloGroup,
+        silo_number: reading.siloNumber,
+        cable_index: reading.cableIndex,
+        level_index: reading.sensorIndex,
+        state: this._getTemperatureState(reading.temperature),
+        color: this._getTemperatureColor(reading.temperature),
+        temperature: reading.temperature ? parseFloat(reading.temperature.toFixed(2)) : null,
+        timestamp: reading.timestamp
+      }));
+      
       res.json(formattedData);
     } catch (err) {
       handleError(res, err);
@@ -269,10 +297,24 @@ export class ReadingController {
         : [parseInt(req.query.silo_number)];
       
       const { start, end } = req.query;
-      const readings = await reportsRepo.findAvgBySiloNumber(siloNumbers, start, end);
+      const readings = await reportsRepo.findBySiloNumber(siloNumbers, start, end);
       
-      // Format to match old Python system format_levels_row structure
-      const formattedData = this._formatReportsToLevelsStructure(readings);
+      // Get average temperature per sensor (matching old Python logic)
+      const avgReadings = this._getAvgReadingsPerSensor(readings);
+      
+      // Format to sensor-level format matching old Python system
+      const formattedData = avgReadings.map(reading => ({
+        sensor_id: reading.sensorId,
+        group_id: reading.siloGroup,
+        silo_number: reading.siloNumber,
+        cable_index: reading.cableIndex,
+        level_index: reading.sensorIndex,
+        state: this._getTemperatureState(reading.temperature),
+        color: this._getTemperatureColor(reading.temperature),
+        temperature: reading.temperature ? parseFloat(reading.temperature.toFixed(2)) : null,
+        timestamp: reading.timestamp
+      }));
+      
       res.json(formattedData);
     } catch (err) {
       handleError(res, err);
@@ -320,10 +362,24 @@ export class ReadingController {
         : [parseInt(req.query.silo_number)];
       
       const { start, end } = req.query;
-      const readings = await reportsRepo.findMaxBySiloNumber(siloNumbers, start, end);
+      const readings = await reportsRepo.findBySiloNumber(siloNumbers, start, end);
       
-      // Format to match old Python system format_levels_row structure
-      const formattedData = this._formatReportsToLevelsStructure(readings);
+      // Get max temperature per sensor per day (matching old Python logic)
+      const maxReadings = this._getMaxReadingsPerSensorPerDay(readings);
+      
+      // Format to sensor-level format matching old Python system
+      const formattedData = maxReadings.map(reading => ({
+        sensor_id: reading.sensorId,
+        group_id: reading.siloGroup,
+        silo_number: reading.siloNumber,
+        cable_index: reading.cableIndex,
+        level_index: reading.sensorIndex,
+        state: this._getTemperatureState(reading.temperature),
+        color: this._getTemperatureColor(reading.temperature),
+        temperature: reading.temperature ? parseFloat(reading.temperature.toFixed(2)) : null,
+        timestamp: reading.timestamp
+      }));
+      
       res.json(formattedData);
     } catch (err) {
       handleError(res, err);
@@ -340,7 +396,7 @@ export class ReadingController {
       const { start, end } = req.query;
       const readings = await reportsRepo.findBySiloGroupId(siloGroupIds, start, end);
       
-      // Format to sensor-level format for group reports
+      // Format to sensor-level format matching old Python system
       const formattedData = readings.map(reading => ({
         sensor_id: reading.sensorId,
         group_id: reading.siloGroup,
@@ -454,7 +510,58 @@ export class ReadingController {
     }
   }
 
-  // 🔧 Helper method to format reports data to match old Python system structure
+  // 🔧 Helper method to get max readings per sensor per day (matching old Python logic)
+  _getMaxReadingsPerSensorPerDay(readings) {
+    const maxPerSensorPerDay = {};
+    
+    for (const reading of readings) {
+      const dayKey = reading.timestamp.toISOString().split('T')[0]; // YYYY-MM-DD
+      const key = `${reading.sensorId}_${dayKey}`;
+      
+      if (!maxPerSensorPerDay[key] || reading.temperature > maxPerSensorPerDay[key].temperature) {
+        maxPerSensorPerDay[key] = reading;
+      }
+    }
+    
+    return Object.values(maxPerSensorPerDay).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  }
+
+  // 🔧 Helper method to get average readings per sensor
+  _getAvgReadingsPerSensor(readings) {
+    const avgPerSensor = {};
+    const countPerSensor = {};
+    
+    for (const reading of readings) {
+      const sensorId = reading.sensorId;
+      
+      if (!avgPerSensor[sensorId]) {
+        avgPerSensor[sensorId] = {
+          ...reading,
+          temperature: 0,
+          count: 0
+        };
+        countPerSensor[sensorId] = 0;
+      }
+      
+      if (reading.temperature !== null && reading.temperature !== -127.0) {
+        avgPerSensor[sensorId].temperature += reading.temperature;
+        countPerSensor[sensorId]++;
+      }
+    }
+    
+    // Calculate averages
+    for (const sensorId in avgPerSensor) {
+      if (countPerSensor[sensorId] > 0) {
+        avgPerSensor[sensorId].temperature = avgPerSensor[sensorId].temperature / countPerSensor[sensorId];
+      } else {
+        avgPerSensor[sensorId].temperature = null;
+      }
+    }
+    
+    return Object.values(avgPerSensor);
+  }
+
+  // 🔧 Helper method to format reports data to match old Python system structure (DEPRECATED - keeping for level-based endpoints)
   _formatReportsToLevelsStructure(readings) {
     if (!readings || readings.length === 0) {
       return [];
