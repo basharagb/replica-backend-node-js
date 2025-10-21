@@ -48,7 +48,9 @@ export class ReadingRepository {
   // 🔹 جلب أحدث القراءات حسب معرف المستشعر
   async findLatestBySensorId(sensorIds, startDate = null, endDate = null) {
     let query = `
-      SELECT r1.sensor_id, r1.value_c, r1.polled_at
+      SELECT r1.sensor_id, r1.value_c, r1.polled_at,
+             s.sensor_index, c.cable_index, c.silo_id, silo.silo_number,
+             sg.name as silo_group_name
       FROM readings_raw r1
       INNER JOIN (
         SELECT sensor_id, MAX(polled_at) as max_polled_at
@@ -71,6 +73,10 @@ export class ReadingRepository {
     query += `
         GROUP BY sensor_id
       ) r2 ON r1.sensor_id = r2.sensor_id AND r1.polled_at = r2.max_polled_at
+      INNER JOIN sensors s ON r1.sensor_id = s.id
+      INNER JOIN cables c ON s.cable_id = c.id
+      INNER JOIN silos silo ON c.silo_id = silo.id
+      LEFT JOIN silo_groups sg ON silo.silo_group_id = sg.id
       ORDER BY r1.sensor_id
     `;
     
@@ -79,7 +85,12 @@ export class ReadingRepository {
       return rows.map(row => ({
         sensor_id: row.sensor_id,
         temperature: parseFloat(row.value_c),
-        timestamp: row.polled_at
+        timestamp: row.polled_at,
+        sensorIndex: row.sensor_index,
+        cableIndex: row.cable_index,
+        siloId: row.silo_id,
+        siloNumber: row.silo_number,
+        siloGroup: row.silo_group_name
       }));
     } catch (err) {
       logger.error(`[ReadingRepository.findLatestBySensorId] ❌ ${err.message}`);

@@ -30,7 +30,21 @@ export class ReadingController {
       
       const { start, end } = req.query;
       const readings = await reportsRepo.findBySensorId(sensorIds, start, end);
-      res.json(readings);
+      
+      // Format to sensor-level format matching old Python system
+      const formattedData = readings.map(reading => ({
+        sensor_id: reading.sensorId,
+        group_id: reading.siloGroup,
+        silo_number: reading.siloNumber,
+        cable_index: reading.cableIndex,
+        level_index: reading.sensorIndex,
+        state: this._getTemperatureState(reading.temperature),
+        color: this._getTemperatureColor(reading.temperature),
+        temperature: reading.temperature ? parseFloat(reading.temperature.toFixed(2)) : null,
+        timestamp: reading.timestamp
+      }));
+      
+      res.json(formattedData);
     } catch (err) {
       handleError(res, err);
     }
@@ -45,7 +59,21 @@ export class ReadingController {
       
       const { start, end } = req.query;
       const readings = await readingRepo.findLatestBySensorId(sensorIds, start, end);
-      res.json(readings);
+      
+      // Format to sensor-level format matching old Python system
+      const formattedData = readings.map(reading => ({
+        sensor_id: reading.sensor_id,
+        group_id: reading.siloGroup,
+        silo_number: reading.siloNumber,
+        cable_index: reading.cableIndex,
+        level_index: reading.sensorIndex,
+        state: this._getTemperatureState(reading.temperature),
+        color: this._getTemperatureColor(reading.temperature),
+        temperature: reading.temperature ? parseFloat(reading.temperature.toFixed(2)) : null,
+        timestamp: reading.timestamp
+      }));
+      
+      res.json(formattedData);
     } catch (err) {
       handleError(res, err);
     }
@@ -60,7 +88,21 @@ export class ReadingController {
       
       const { start, end } = req.query;
       const readings = await reportsRepo.findBySensorId(sensorIds, start, end); // Use reports for max
-      res.json(readings);
+      
+      // Format to sensor-level format matching old Python system
+      const formattedData = readings.map(reading => ({
+        sensor_id: reading.sensorId,
+        group_id: reading.siloGroup,
+        silo_number: reading.siloNumber,
+        cable_index: reading.cableIndex,
+        level_index: reading.sensorIndex,
+        state: this._getTemperatureState(reading.temperature),
+        color: this._getTemperatureColor(reading.temperature),
+        temperature: reading.temperature ? parseFloat(reading.temperature.toFixed(2)) : null,
+        timestamp: reading.timestamp
+      }));
+      
+      res.json(formattedData);
     } catch (err) {
       handleError(res, err);
     }
