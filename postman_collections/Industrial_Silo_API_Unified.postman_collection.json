@@ -302,63 +302,71 @@
       "name": "📈 Report - Analytics",
       "item": [
         {
-          "name": "Silo Number avg - all",
+          "name": "Silo Number avg - all (Reports with Date Range)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/readings/avg/by-silo-number?silo_number=1&silo_number=2",
+              "raw": "{{base_url}}/readings/avg/by-silo-number?silo_number=1&silo_number=2&start=2024-01-01T00:00:00&end=2024-12-31T23:59:59",
               "host": ["{{base_url}}"],
               "path": ["readings", "avg", "by-silo-number"],
               "query": [
                 {"key": "silo_number", "value": "1"},
-                {"key": "silo_number", "value": "2"}
+                {"key": "silo_number", "value": "2"},
+                {"key": "start", "value": "2024-01-01T00:00:00", "description": "Start date for reports (ISO format)"},
+                {"key": "end", "value": "2024-12-31T23:59:59", "description": "End date for reports (ISO format)"}
               ]
             }
           }
         },
         {
-          "name": "Silo Number avg - max",
+          "name": "Silo Number avg - max (Reports with Date Range)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/readings/avg/max/by-silo-number?silo_number=1&silo_number=2",
+              "raw": "{{base_url}}/readings/avg/max/by-silo-number?silo_number=1&silo_number=2&start=2024-01-01T00:00:00&end=2024-12-31T23:59:59",
               "host": ["{{base_url}}"],
               "path": ["readings", "avg", "max", "by-silo-number"],
               "query": [
                 {"key": "silo_number", "value": "1"},
-                {"key": "silo_number", "value": "2"}
+                {"key": "silo_number", "value": "2"},
+                {"key": "start", "value": "2024-01-01T00:00:00", "description": "Start date for reports (ISO format)"},
+                {"key": "end", "value": "2024-12-31T23:59:59", "description": "End date for reports (ISO format)"}
               ]
             }
           }
         },
         {
-          "name": "Silo Group avg - all",
+          "name": "Silo Group avg - all (Reports with Date Range)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/readings/avg/by-silo-group-id?silo_group_id=1",
+              "raw": "{{base_url}}/readings/avg/by-silo-group-id?silo_group_id=1&start=2024-01-01T00:00:00&end=2024-12-31T23:59:59",
               "host": ["{{base_url}}"],
               "path": ["readings", "avg", "by-silo-group-id"],
               "query": [
-                {"key": "silo_group_id", "value": "1"}
+                {"key": "silo_group_id", "value": "1"},
+                {"key": "start", "value": "2024-01-01T00:00:00", "description": "Start date for reports (ISO format)"},
+                {"key": "end", "value": "2024-12-31T23:59:59", "description": "End date for reports (ISO format)"}
               ]
             }
           }
         },
         {
-          "name": "Silo Group avg - max",
+          "name": "Silo Group avg - max (Reports with Date Range)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/readings/avg/max/by-silo-group-id?silo_group_id=1",
+              "raw": "{{base_url}}/readings/avg/max/by-silo-group-id?silo_group_id=1&start=2024-01-01T00:00:00&end=2024-12-31T23:59:59",
               "host": ["{{base_url}}"],
               "path": ["readings", "avg", "max", "by-silo-group-id"],
               "query": [
-                {"key": "silo_group_id", "value": "1"}
+                {"key": "silo_group_id", "value": "1"},
+                {"key": "start", "value": "2024-01-01T00:00:00", "description": "Start date for reports (ISO format)"},
+                {"key": "end", "value": "2024-12-31T23:59:59", "description": "End date for reports (ISO format)"}
               ]
             }
           }
@@ -369,16 +377,18 @@
       "name": "🔧 Maintenance",
       "item": [
         {
-          "name": "Silo Number - all",
+          "name": "Silo Number - all (Reports with Date Range)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/readings/by-silo-number?silo_number=1",
+              "raw": "{{base_url}}/readings/by-silo-number?silo_number=1&start=2024-01-01T00:00:00&end=2024-12-31T23:59:59",
               "host": ["{{base_url}}"],
               "path": ["readings", "by-silo-number"],
               "query": [
-                {"key": "silo_number", "value": "1"}
+                {"key": "silo_number", "value": "1"},
+                {"key": "start", "value": "2024-01-01T00:00:00", "description": "Start date for reports (ISO format)"},
+                {"key": "end", "value": "2024-12-31T23:59:59", "description": "End date for reports (ISO format)"}
               ]
             }
           }
@@ -401,28 +411,36 @@
           }
         },
         {
-          "name": "Silo Number - max",
+          "name": "Silo Number - max (Reports with Date Range)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/readings/max/by-silo-number",
+              "raw": "{{base_url}}/readings/max/by-silo-number?silo_number=1&silo_number=2&start=2024-01-01T00:00:00&end=2024-12-31T23:59:59",
               "host": ["{{base_url}}"],
-              "path": ["readings", "max", "by-silo-number"]
+              "path": ["readings", "max", "by-silo-number"],
+              "query": [
+                {"key": "silo_number", "value": "1"},
+                {"key": "silo_number", "value": "2"},
+                {"key": "start", "value": "2024-01-01T00:00:00", "description": "Start date for reports (ISO format)"},
+                {"key": "end", "value": "2024-12-31T23:59:59", "description": "End date for reports (ISO format)"}
+              ]
             }
           }
         },
         {
-          "name": "Silo Group - all",
+          "name": "Silo Group - all (Reports with Date Range)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/readings/by-silo-group-id?silo_group_id=2",
+              "raw": "{{base_url}}/readings/by-silo-group-id?silo_group_id=2&start=2024-01-01T00:00:00&end=2024-12-31T23:59:59",
               "host": ["{{base_url}}"],
               "path": ["readings", "by-silo-group-id"],
               "query": [
-                {"key": "silo_group_id", "value": "2"}
+                {"key": "silo_group_id", "value": "2"},
+                {"key": "start", "value": "2024-01-01T00:00:00", "description": "Start date for reports (ISO format)"},
+                {"key": "end", "value": "2024-12-31T23:59:59", "description": "End date for reports (ISO format)"}
               ]
             }
           }
@@ -443,16 +461,18 @@
           }
         },
         {
-          "name": "Silo Group - max",
+          "name": "Silo Group - max (Reports with Date Range)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/readings/max/by-silo-group-id?silo_group_id=1",
+              "raw": "{{base_url}}/readings/max/by-silo-group-id?silo_group_id=1&start=2024-01-01T00:00:00&end=2024-12-31T23:59:59",
               "host": ["{{base_url}}"],
               "path": ["readings", "max", "by-silo-group-id"],
               "query": [
-                {"key": "silo_group_id", "value": "1"}
+                {"key": "silo_group_id", "value": "1"},
+                {"key": "start", "value": "2024-01-01T00:00:00", "description": "Start date for reports (ISO format)"},
+                {"key": "end", "value": "2024-12-31T23:59:59", "description": "End date for reports (ISO format)"}
               ]
             }
           }

@@ -251,8 +251,11 @@ export class ReadingController {
         : [parseInt(req.query.silo_number)];
       
       const { start, end } = req.query;
-      const readings = await reportsRepo.findBySiloNumber(siloNumbers, start, end);
-      res.json(readings);
+      const readings = await reportsRepo.findMaxBySiloNumber(siloNumbers, start, end);
+      
+      // Format to match old Python system format_levels_row structure
+      const formattedData = this._formatReportsToLevelsStructure(readings);
+      res.json(formattedData);
     } catch (err) {
       handleError(res, err);
     }
@@ -266,8 +269,11 @@ export class ReadingController {
         : [parseInt(req.query.silo_number)];
       
       const { start, end } = req.query;
-      const readings = await reportsRepo.findBySiloNumber(siloNumbers, start, end);
-      res.json(readings);
+      const readings = await reportsRepo.findAvgBySiloNumber(siloNumbers, start, end);
+      
+      // Format to match old Python system format_levels_row structure
+      const formattedData = this._formatReportsToLevelsStructure(readings);
+      res.json(formattedData);
     } catch (err) {
       handleError(res, err);
     }
@@ -314,8 +320,11 @@ export class ReadingController {
         : [parseInt(req.query.silo_number)];
       
       const { start, end } = req.query;
-      const readings = await reportsRepo.findBySiloNumber(siloNumbers, start, end);
-      res.json(readings);
+      const readings = await reportsRepo.findMaxBySiloNumber(siloNumbers, start, end);
+      
+      // Format to match old Python system format_levels_row structure
+      const formattedData = this._formatReportsToLevelsStructure(readings);
+      res.json(formattedData);
     } catch (err) {
       handleError(res, err);
     }
@@ -330,10 +339,44 @@ export class ReadingController {
       
       const { start, end } = req.query;
       const readings = await reportsRepo.findBySiloGroupId(siloGroupIds, start, end);
-      res.json(readings);
+      
+      // Format to sensor-level format for group reports
+      const formattedData = readings.map(reading => ({
+        sensor_id: reading.sensorId,
+        group_id: reading.siloGroup,
+        silo_number: reading.siloNumber,
+        cable_index: reading.cableIndex,
+        level_index: reading.sensorIndex,
+        state: this._getTemperatureState(reading.temperature),
+        color: this._getTemperatureColor(reading.temperature),
+        temperature: reading.temperature ? parseFloat(reading.temperature.toFixed(2)) : null,
+        timestamp: reading.timestamp
+      }));
+      
+      res.json(formattedData);
     } catch (err) {
       handleError(res, err);
     }
+  }
+
+  // 🔧 Helper method to get temperature state
+  _getTemperatureState(temp) {
+    if (temp === null || temp === undefined || temp === -127.0) {
+      return 'disconnect';
+    }
+    if (temp >= 40) return 'critical';
+    if (temp >= 35) return 'warn';
+    return 'normal';
+  }
+
+  // 🔧 Helper method to get temperature color
+  _getTemperatureColor(temp) {
+    if (temp === null || temp === undefined || temp === -127.0) {
+      return '#8c9494'; // disconnect
+    }
+    if (temp >= 40) return '#d14141'; // critical
+    if (temp >= 35) return '#c7c150'; // warn
+    return '#46d446'; // normal
   }
 
   // 🔹 جلب أحدث القراءات حسب معرف مجموعة الصوامع (Latest - from readings_raw table)
@@ -409,5 +452,90 @@ export class ReadingController {
     } catch (err) {
       handleError(res, err);
     }
+  }
+
+  // 🔧 Helper method to format reports data to match old Python system structure
+  _formatReportsToLevelsStructure(readings) {
+    if (!readings || readings.length === 0) {
+      return [];
+    }
+
+    // Group readings by silo and timestamp
+    const grouped = {};
+    
+    for (const reading of readings) {
+      const key = `${reading.siloNumber}_${reading.timestamp}`;
+      if (!grouped[key]) {
+        grouped[key] = {
+          silo_group: reading.siloGroup,
+          silo_number: reading.siloNumber,
+          cable_number: null, // Reports are averaged across cables
+          timestamp: reading.timestamp,
+          levels: {}
+        };
+      }
+      
+      // Set level temperature
+      grouped[key].levels[reading.levelIndex] = reading.temperature;
+    }
+
+    // Convert to format_levels_row structure
+    const result = [];
+    for (const group of Object.values(grouped)) {
+      const row = {
+        silo_group: group.silo_group,
+        silo_number: group.silo_number,
+        cable_number: group.cable_number,
+        timestamp: group.timestamp
+      };
+
+      // Add level_0 to level_7 and corresponding colors
+      for (let level = 0; level < 8; level++) {
+        const temp = group.levels[level];
+        row[`level_${level}`] = temp ? parseFloat(temp.toFixed(2)) : null;
+        
+        // Add color based on temperature thresholds (matching old Python system)
+        let color = '#8c9494'; // disconnect/missing color
+        if (temp !== null && temp !== undefined && temp !== -127.0) {
+          if (temp >= 40) {
+            color = '#d14141'; // critical
+          } else if (temp >= 35) {
+            color = '#c7c150'; // warn
+          } else {
+            color = '#46d446'; // normal
+          }
+        }
+        row[`color_${level}`] = color;
+      }
+
+      // Set overall silo color to worst level color
+      const colors = [];
+      for (let level = 0; level < 8; level++) {
+        colors.push(row[`color_${level}`]);
+      }
+      
+      // Priority: critical > warn > normal > disconnect
+      if (colors.includes('#d14141')) {
+        row.silo_color = '#d14141';
+      } else if (colors.includes('#c7c150')) {
+        row.silo_color = '#c7c150';
+      } else if (colors.includes('#46d446')) {
+        row.silo_color = '#46d446';
+      } else {
+        row.silo_color = '#8c9494';
+      }
+
+      result.push(row);
+    }
+
+    // Sort by silo number and timestamp
+    result.sort((a, b) => {
+      if (a.silo_number !== b.silo_number) {
+        return a.silo_number - b.silo_number;
+      }
+      return new Date(b.timestamp) - new Date(a.timestamp);
+    });
+
+    return result;
   }
 }
