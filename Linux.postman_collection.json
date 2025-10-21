@@ -1,16 +1,11 @@
 {
 	"info": {
-		"_postman_id": "unified-silo-api-localhost-2025-v3",
-		"name": "Industrial Silo Monitoring API - Unified Collection",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"_postman_id": "8d5e3c99-851b-4c74-893f-3bf132286662",
+		"name": "Linux",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "14342856",
+		"_collection_link": "https://bashar1994.postman.co/workspace/POTAS~5f94638c-fd87-4512-85fa-e9c3ebcebe5a/collection/14342856-8d5e3c99-851b-4c74-893f-3bf132286662?action=share&source=collection_link&creator=14342856"
 	},
-	"variable": [
-		{
-			"key": "base_url",
-			"value": "http://localhost:3000",
-			"type": "string"
-		}
-	],
 	"item": [
 		{
 			"name": "Testing",
@@ -21,9 +16,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/by-sensor?sensor_id=1&sensor_id=2&sensor_id=1800",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/by-sensor?sensor_id=1&sensor_id=2&sensor_id=1800",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"by-sensor"
@@ -62,9 +62,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/latest/by-sensor?sensor_id=1&sensor_id=2&sensor_id=1800&start=2025-07-16T00:00",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/latest/by-sensor?sensor_id=1&sensor_id=2&sensor_id=1800&start=2025-07-16T00:00",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"latest",
@@ -103,9 +108,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/max/by-sensor?sensor_id=1&sensor_id=2&sensor_id=1800",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/max/by-sensor?sensor_id=1&sensor_id=2&sensor_id=1800",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"max",
@@ -145,9 +155,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/by-cable?cable_id=1&cable_id=2&cable_id=3&start=2025-07-16T00:00",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/by-cable?cable_id=1&cable_id=2&cable_id=3&start=2025-07-16T00:00",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"by-cable"
@@ -185,9 +200,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/latest/by-cable?cable_id=1&cable_id=2&cable_id=3&start=2025-07-16T00:00",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/latest/by-cable?cable_id=1&cable_id=2&cable_id=3&start=2025-07-16T00:00",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"latest",
@@ -226,9 +246,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/max/by-cable?cable_id=1&cable_id=2&cable_id=3&start=2025-07-16T00:00",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/max/by-cable?cable_id=1&cable_id=2&cable_id=3&start=2025-07-16T00:00",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"max",
@@ -267,9 +292,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/by-silo-id?silo_id=1&silo_id=2&start=2025-07-16T00:00",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/by-silo-id?silo_id=1&silo_id=2&start=2025-07-16T00:00",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"by-silo-id"
@@ -308,9 +338,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/latest/by-silo-id?silo_id=1&silo_id=2&silo_id=57",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/latest/by-silo-id?silo_id=1&silo_id=2&silo_id=57",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"latest",
@@ -350,9 +385,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/max/by-silo-id?silo_id=1&silo_id=2&silo_id=56&start=2025-07-16T00:00",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/max/by-silo-id?silo_id=1&silo_id=2&silo_id=56&start=2025-07-16T00:00",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"max",
@@ -391,9 +431,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/avg/by-silo-id?silo_id=1&silo_id=2&silo_id=56&start=2025-07-16T00:00",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/avg/by-silo-id?silo_id=1&silo_id=2&silo_id=56&start=2025-07-16T00:00",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"avg",
@@ -432,9 +477,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/avg/latest/by-silo-id?silo_id=1&silo_id=2&silo_id=56&start=2025-07-16T00:00",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/avg/latest/by-silo-id?silo_id=1&silo_id=2&silo_id=56&start=2025-07-16T00:00",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"avg",
@@ -474,9 +524,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/avg/max/by-silo-id?silo_id=1&silo_id=2&silo_id=56&start=2025-07-16T00:00",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/avg/max/by-silo-id?silo_id=1&silo_id=2&silo_id=56&start=2025-07-16T00:00",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"avg",
@@ -521,9 +576,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/avg/latest/by-silo-number?silo_number=1&silo_number=2&silo_number=3",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/avg/latest/by-silo-number?silo_number=1&silo_number=2&silo_number=3",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"avg",
@@ -564,9 +624,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/avg/latest/by-silo-group-id?silo_group_id=1&start=2025-07-16T00:00",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/avg/latest/by-silo-group-id?silo_group_id=1&start=2025-07-16T00:00",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"avg",
@@ -603,9 +668,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/avg/by-silo-number?silo_number=1&silo_number=2&silo_number=55&start=2025-07-16T00:00",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/avg/by-silo-number?silo_number=1&silo_number=2&silo_number=55&start=2025-07-16T00:00",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"avg",
@@ -644,9 +714,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/avg/max/by-silo-number?silo_number=1&silo_number=2&silo_number=55&start=2025-07-16T00:00",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/avg/max/by-silo-number?silo_number=1&silo_number=2&silo_number=55&start=2025-07-16T00:00",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"avg",
@@ -686,9 +761,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/avg/by-silo-group-id?silo_group_id=1&start=2025-07-16T00:00",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/avg/by-silo-group-id?silo_group_id=1&start=2025-07-16T00:00",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"avg",
@@ -719,9 +799,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/avg/max/by-silo-group-id?silo_group_id=1&start=2025-07-16T00:00",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/avg/max/by-silo-group-id?silo_group_id=1&start=2025-07-16T00:00",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"avg",
@@ -758,9 +843,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/by-silo-number?silo_number=1",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/by-silo-number?silo_number=1",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"by-silo-number"
@@ -801,9 +891,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/latest/by-silo-number?silo_number=1&silo_number=2&silo_number=3&start=2025-07-16T00:00",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/latest/by-silo-number?silo_number=1&silo_number=2&silo_number=3&start=2025-07-16T00:00",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"latest",
@@ -842,9 +937,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/max/by-silo-number",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/max/by-silo-number",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"max",
@@ -887,9 +987,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/by-silo-group-id?silo_group_id=2&start=2025-07-16T00:00",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/by-silo-group-id?silo_group_id=2&start=2025-07-16T00:00",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"by-silo-group-id"
@@ -919,9 +1024,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/latest/by-silo-group-id?silo_group_id=2&start=2025-07-16T00:00",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/latest/by-silo-group-id?silo_group_id=2&start=2025-07-16T00:00",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"latest",
@@ -952,9 +1062,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/readings/max/by-silo-group-id?silo_group_id=1&start=2025-07-16T00:00",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/readings/max/by-silo-group-id?silo_group_id=1&start=2025-07-16T00:00",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"readings",
 								"max",
@@ -990,22 +1105,19 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/alerts/active?page=1&limit=200",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/alerts/active",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"alerts",
 								"active"
 							],
 							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "200"
-								},
 								{
 									"key": "end",
 									"value": "2025-07-16T19:00",
@@ -1030,9 +1142,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/silos/level-estimate/by-number?silo_number=12&silo_number=13\n",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/silos/level-estimate/by-number?silo_number=12&silo_number=13\n",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"silos",
 								"level-estimate",
@@ -1072,9 +1189,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/login",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/login",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"login"
 							]
@@ -1107,8 +1229,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}:5001/sms",
-							"host": ["{{base_url}}"],
+							"raw": "192.168.1.92:5001/sms",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
 							"port": "5001",
 							"path": [
 								"sms"
@@ -1140,8 +1267,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}:5001/health",
-							"host": ["{{base_url}}"],
+							"raw": "192.168.1.92:5001/health",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
 							"port": "5001",
 							"path": [
 								"health"
@@ -1173,9 +1305,14 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{base_url}}/env_temp",
-							"host": ["{{base_url}}"],
-							
+							"raw": "192.168.1.92:5000/env_temp",
+							"host": [
+								"192",
+								"168",
+								"1",
+								"92"
+							],
+							"port": "5000",
 							"path": [
 								"env_temp"
 							]
