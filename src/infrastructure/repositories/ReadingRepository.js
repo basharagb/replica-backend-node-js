@@ -140,11 +140,11 @@ export class ReadingRepository {
     }
   }
 
-  // 🔹 جلب القراءات حسب معرف الكابل
+  // 🔹 جلب القراءات حسب معرف الكابل (Latest - from readings_raw table)
   async findByCableId(cableIds, startDate = null, endDate = null) {
     let query = `
-      SELECT r.id, r.sensor_id, r.hour_start, r.value_c, r.sample_at
-      FROM readings r
+      SELECT r.sensor_id, r.value_c, r.polled_at
+      FROM readings_raw r
       INNER JOIN sensors s ON r.sensor_id = s.id
       WHERE s.cable_id IN (${cableIds.map(() => '?').join(',')})
     `;
@@ -152,25 +152,23 @@ export class ReadingRepository {
     const params = [...cableIds];
     
     if (startDate) {
-      query += ' AND r.sample_at >= ?';
+      query += ' AND r.polled_at >= ?';
       params.push(startDate);
     }
     
     if (endDate) {
-      query += ' AND r.sample_at <= ?';
+      query += ' AND r.polled_at <= ?';
       params.push(endDate);
     }
     
-    query += ' ORDER BY r.sample_at DESC';
+    query += ' ORDER BY r.polled_at DESC';
     
     try {
       const [rows] = await pool.query(query, params);
-      return rows.map(row => new Reading({
-        id: row.id,
-        sensorId: row.sensor_id,
-        hourStart: row.hour_start,
-        valueC: row.value_c,
-        sampleAt: row.sample_at
+      return rows.map(row => ({
+        sensor_id: row.sensor_id,
+        temperature: parseFloat(row.value_c),
+        timestamp: row.polled_at
       }));
     } catch (err) {
       logger.error(`[ReadingRepository.findByCableId] ❌ ${err.message}`);
