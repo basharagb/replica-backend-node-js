@@ -387,14 +387,11 @@ export class ReadingController {
       const { start, end } = req.query;
       const readings = await reportsRepo.findBySiloNumber(siloNumbers, start, end);
       
-      // Get average temperature per sensor (matching old Python logic)
-      const avgReadings = this._getAvgReadingsPerSensor(readings);
-      
-      // Group averaged readings by (silo, timestamp) for level-based format - matching Python logic
+      // Group by (silo, timestamp) first - matching Python key = (silo.id, ts_iso)
       const grouped = {};
       const meta = {};
       
-      for (const reading of avgReadings) {
+      for (const reading of readings) {
         // Group by silo AND timestamp to get multiple rows per silo across date range
         const timestampKey = reading.timestamp.toISOString();
         const key = `${reading.siloId}_${timestampKey}`;
@@ -410,20 +407,21 @@ export class ReadingController {
           };
         }
         
-        // Average multiple readings per sensor per timestamp (matching Python level_lists_to_avg)
+        // Collect multiple readings per sensor per timestamp (matching Python level_lists)
         if (!grouped[key][reading.sensorIndex]) {
           grouped[key][reading.sensorIndex] = [];
         }
-        grouped[key][reading.sensorIndex].push(reading.temperature);
+        if (reading.temperature !== null && reading.temperature !== -127.0) {
+          grouped[key][reading.sensorIndex].push(reading.temperature);
+        }
       }
       
-      // Average the temperature lists for each sensor level
+      // Average the temperature lists for each sensor level (matching Python level_lists_to_avg)
       for (const key of Object.keys(grouped)) {
         for (const sensorIndex of Object.keys(grouped[key])) {
           const temps = grouped[key][sensorIndex];
-          const validTemps = temps.filter(t => t !== null && t !== undefined && t !== -127.0);
-          grouped[key][sensorIndex] = validTemps.length > 0 
-            ? validTemps.reduce((sum, temp) => sum + temp, 0) / validTemps.length
+          grouped[key][sensorIndex] = temps.length > 0 
+            ? temps.reduce((sum, temp) => sum + temp, 0) / temps.length
             : null;
         }
       }
@@ -496,14 +494,11 @@ export class ReadingController {
       const { start, end } = req.query;
       const readings = await reportsRepo.findBySiloNumber(siloNumbers, start, end);
       
-      // Get max temperature per sensor per day (matching old Python logic)
-      const maxReadings = this._getMaxReadingsPerSensorPerDay(readings);
-      
-      // Group max readings by (silo, timestamp) for level-based format - matching Python logic
+      // Group by (silo, timestamp) first - matching Python key = (silo.id, ts_iso)
       const grouped = {};
       const meta = {};
       
-      for (const reading of maxReadings) {
+      for (const reading of readings) {
         // Group by silo AND timestamp to get multiple rows per silo across date range
         const timestampKey = reading.timestamp.toISOString();
         const key = `${reading.siloId}_${timestampKey}`;
@@ -520,8 +515,10 @@ export class ReadingController {
         }
         
         // Take max temperature per sensor per timestamp
-        if (!grouped[key][reading.sensorIndex] || reading.temperature > grouped[key][reading.sensorIndex]) {
-          grouped[key][reading.sensorIndex] = reading.temperature;
+        if (reading.temperature !== null && reading.temperature !== -127.0) {
+          if (!grouped[key][reading.sensorIndex] || reading.temperature > grouped[key][reading.sensorIndex]) {
+            grouped[key][reading.sensorIndex] = reading.temperature;
+          }
         }
       }
       
@@ -663,14 +660,11 @@ export class ReadingController {
       const { start, end } = req.query;
       const readings = await reportsRepo.findBySiloGroupId(siloGroupIds, start, end);
       
-      // Get average temperature per sensor (matching old Python logic)
-      const avgReadings = this._getAvgReadingsPerSensor(readings);
-      
-      // Group averaged readings by (silo, timestamp) for level-based format - matching Python logic
+      // Group by (silo, timestamp) first - matching Python key = (silo.id, ts_iso)
       const grouped = {};
       const meta = {};
       
-      for (const reading of avgReadings) {
+      for (const reading of readings) {
         // Group by silo AND timestamp to get multiple rows per silo across date range
         const timestampKey = reading.timestamp.toISOString();
         const key = `${reading.siloId}_${timestampKey}`;
@@ -686,20 +680,21 @@ export class ReadingController {
           };
         }
         
-        // Average multiple readings per sensor per timestamp (matching Python level_lists_to_avg)
+        // Collect multiple readings per sensor per timestamp (matching Python level_lists)
         if (!grouped[key][reading.sensorIndex]) {
           grouped[key][reading.sensorIndex] = [];
         }
-        grouped[key][reading.sensorIndex].push(reading.temperature);
+        if (reading.temperature !== null && reading.temperature !== -127.0) {
+          grouped[key][reading.sensorIndex].push(reading.temperature);
+        }
       }
       
-      // Average the temperature lists for each sensor level
+      // Average the temperature lists for each sensor level (matching Python level_lists_to_avg)
       for (const key of Object.keys(grouped)) {
         for (const sensorIndex of Object.keys(grouped[key])) {
           const temps = grouped[key][sensorIndex];
-          const validTemps = temps.filter(t => t !== null && t !== undefined && t !== -127.0);
-          grouped[key][sensorIndex] = validTemps.length > 0 
-            ? validTemps.reduce((sum, temp) => sum + temp, 0) / validTemps.length
+          grouped[key][sensorIndex] = temps.length > 0 
+            ? temps.reduce((sum, temp) => sum + temp, 0) / temps.length
             : null;
         }
       }
@@ -770,14 +765,11 @@ export class ReadingController {
       const { start, end } = req.query;
       const readings = await reportsRepo.findBySiloGroupId(siloGroupIds, start, end);
       
-      // Get max temperature per sensor per day (matching old Python logic)
-      const maxReadings = this._getMaxReadingsPerSensorPerDay(readings);
-      
-      // Group max readings by (silo, timestamp) for level-based format - matching Python logic
+      // Group by (silo, timestamp) first - matching Python key = (silo.id, ts_iso)
       const grouped = {};
       const meta = {};
       
-      for (const reading of maxReadings) {
+      for (const reading of readings) {
         // Group by silo AND timestamp to get multiple rows per silo across date range
         const timestampKey = reading.timestamp.toISOString();
         const key = `${reading.siloId}_${timestampKey}`;
@@ -794,8 +786,10 @@ export class ReadingController {
         }
         
         // Take max temperature per sensor per timestamp
-        if (!grouped[key][reading.sensorIndex] || reading.temperature > grouped[key][reading.sensorIndex]) {
-          grouped[key][reading.sensorIndex] = reading.temperature;
+        if (reading.temperature !== null && reading.temperature !== -127.0) {
+          if (!grouped[key][reading.sensorIndex] || reading.temperature > grouped[key][reading.sensorIndex]) {
+            grouped[key][reading.sensorIndex] = reading.temperature;
+          }
         }
       }
       
