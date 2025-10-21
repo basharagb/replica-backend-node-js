@@ -243,7 +243,7 @@ export class ReadingController {
     }
   }
 
-  // 🔹 جلب القراءات حسب رقم الصومعة (Reports - from readings table)
+  // 🔹 جلب القراءات حسب رقم الصومعة (Maintenance - from readings table, level-based format)
   async getBySiloNumber(req, res) {
     try {
       const siloNumbers = Array.isArray(req.query.silo_number) 
@@ -253,20 +253,42 @@ export class ReadingController {
       const { start, end } = req.query;
       const readings = await reportsRepo.findBySiloNumber(siloNumbers, start, end);
       
-      // Format to sensor-level format matching old Python system
-      const formattedData = readings.map(reading => ({
-        sensor_id: reading.sensorId,
-        group_id: reading.siloGroup,
-        silo_number: reading.siloNumber,
-        cable_index: reading.cableIndex,
-        level_index: reading.sensorIndex,
-        state: this._getTemperatureState(reading.temperature),
-        color: this._getTemperatureColor(reading.temperature),
-        temperature: reading.temperature ? parseFloat(reading.temperature.toFixed(2)) : null,
-        timestamp: reading.timestamp
-      }));
+      // Group readings by (silo, cable, timestamp) for level-based format
+      const grouped = {};
+      const meta = {};
       
-      res.json(formattedData);
+      for (const reading of readings) {
+        const key = `${reading.siloId}_${reading.cableIndex}_${reading.timestamp.toISOString()}`;
+        if (!grouped[key]) {
+          grouped[key] = {};
+          meta[key] = {
+            silo: {
+              silo_number: reading.siloNumber,
+              group_name: reading.siloGroup
+            },
+            cable_number: reading.cableIndex,
+            timestamp: reading.timestamp.toISOString()
+          };
+        }
+        grouped[key][reading.sensorIndex] = reading.temperature;
+      }
+      
+      // Format to level-based format matching old Python system
+      const formattedRows = Object.keys(grouped).map(key => {
+        const levels = grouped[key];
+        const { silo, cable_number, timestamp } = meta[key];
+        
+        return formatLevelsRow(
+          silo,
+          cable_number,
+          timestamp,
+          levels
+        );
+      });
+      
+      // Flatten rows per silo (matching old Python _flatten_rows_per_silo)
+      const flattened = flattenRowsPerSilo(formattedRows);
+      res.json(flattened);
     } catch (err) {
       handleError(res, err);
     }
@@ -300,7 +322,7 @@ export class ReadingController {
     }
   }
 
-  // 🔹 جلب أعلى القراءات حسب رقم الصومعة (Reports - from readings table)
+  // 🔹 جلب أعلى القراءات حسب رقم الصومعة (Maintenance - from readings table, level-based format)
   async getMaxBySiloNumber(req, res) {
     try {
       const siloNumbers = Array.isArray(req.query.silo_number) 
@@ -313,20 +335,43 @@ export class ReadingController {
       // Get max temperature per sensor per day (matching old Python logic)
       const maxReadings = this._getMaxReadingsPerSensorPerDay(readings);
       
-      // Format to sensor-level format matching old Python system
-      const formattedData = maxReadings.map(reading => ({
-        sensor_id: reading.sensorId,
-        group_id: reading.siloGroup,
-        silo_number: reading.siloNumber,
-        cable_index: reading.cableIndex,
-        level_index: reading.sensorIndex,
-        state: this._getTemperatureState(reading.temperature),
-        color: this._getTemperatureColor(reading.temperature),
-        temperature: reading.temperature ? parseFloat(reading.temperature.toFixed(2)) : null,
-        timestamp: reading.timestamp
-      }));
+      // Group max readings by (silo, cable, day) for level-based format
+      const grouped = {};
+      const meta = {};
       
-      res.json(formattedData);
+      for (const reading of maxReadings) {
+        const dayKey = reading.timestamp.toISOString().split('T')[0]; // YYYY-MM-DD
+        const key = `${reading.siloId}_${reading.cableIndex}_${dayKey}`;
+        if (!grouped[key]) {
+          grouped[key] = {};
+          meta[key] = {
+            silo: {
+              silo_number: reading.siloNumber,
+              group_name: reading.siloGroup
+            },
+            cable_number: reading.cableIndex,
+            timestamp: reading.timestamp.toISOString()
+          };
+        }
+        grouped[key][reading.sensorIndex] = reading.temperature;
+      }
+      
+      // Format to level-based format matching old Python system
+      const formattedRows = Object.keys(grouped).map(key => {
+        const levels = grouped[key];
+        const { silo, cable_number, timestamp } = meta[key];
+        
+        return formatLevelsRow(
+          silo,
+          cable_number,
+          timestamp,
+          levels
+        );
+      });
+      
+      // Flatten rows per silo (matching old Python _flatten_rows_per_silo)
+      const flattened = flattenRowsPerSilo(formattedRows);
+      res.json(flattened);
     } catch (err) {
       handleError(res, err);
     }
