@@ -69,7 +69,7 @@ export class UserRepository {
   // 🔹 جلب مستخدم حسب اسم المستخدم
   async findByUsername(username) {
     const query = `
-      SELECT id, username, email, password_hash, role, created_at, updated_at, is_active
+      SELECT id, username, password_hash, role, created_at
       FROM users
       WHERE username = ?
       LIMIT 1
@@ -84,12 +84,12 @@ export class UserRepository {
       return new User({
         id: row.id,
         username: row.username,
-        email: row.email,
+        email: `${row.username}@silos.com`, // Generate email from username
         passwordHash: row.password_hash,
         role: row.role,
         createdAt: row.created_at,
-        updatedAt: row.updated_at,
-        isActive: row.is_active
+        updatedAt: row.created_at, // Use created_at as updated_at
+        isActive: true // Default to active
       });
     } catch (err) {
       logger.error(`[UserRepository.findByUsername] ❌ ${err.message}`);

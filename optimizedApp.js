@@ -206,6 +206,22 @@ function startServer() {
   });
 
   // ============================================================
+  // 🔐 Direct Login Endpoint (for compatibility)
+  // ============================================================
+  app.post('/login', async (req, res) => {
+    try {
+      const { UserController } = await import('./src/presentation/controllers/userController.js');
+      const controller = new UserController();
+      await controller.login(req, res);
+    } catch (error) {
+      logger.error('❌ Login error:', error);
+      res.status(500).json(
+        responseFormatter.error('Login failed', 500)
+      );
+    }
+  });
+
+  // ============================================================
   // 🌾 Optimized API Routes
   // ============================================================
   

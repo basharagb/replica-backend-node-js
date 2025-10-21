@@ -189,9 +189,9 @@ export const getPoolStats = () => {
   return {
     ...connectionStats,
     poolConfig: {
-      connectionLimit: pool.config.connectionLimit,
-      queueLimit: pool.config.queueLimit,
-      acquireTimeout: pool.config.acquireTimeout
+      connectionLimit: pool.config?.connectionLimit || 50,
+      queueLimit: pool.config?.queueLimit || 0,
+      acquireTimeout: pool.config?.acquireTimeout || 60000
     }
   };
 };

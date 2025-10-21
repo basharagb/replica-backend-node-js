@@ -43,8 +43,8 @@ export class UserController {
         { expiresIn: '24h' }
       );
 
-      // تحديث آخر تسجيل دخول
-      await userRepo.updateLastLogin(user.id);
+      // تحديث آخر تسجيل دخول (commented out - column doesn't exist)
+      // await userRepo.updateLastLogin(user.id);
 
       const responseData = {
         token,

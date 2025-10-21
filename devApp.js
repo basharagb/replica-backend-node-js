@@ -237,45 +237,43 @@ const generateMockReadings = (siloNumbers, type = 'individual') => {
       results.push(siloData);
       
     } else {
-      // Generate individual cable readings in old system format
+      // Generate flattened silo readings (matches Python _flatten_rows_per_silo)
       const siloData = {
         silo_group: groupName,
         silo_number: siloNumber,
-        cable_count: 2,
+        cable_number: null, // Flattened data has no specific cable
         timestamp: new Date().toISOString().slice(0, 19)
       };
       
       let siloColor = "#46d446"; // Default green
       
-      // Generate data for 2 cables
-      for (let cable = 0; cable < 2; cable++) {
-        for (let level = 0; level < 8; level++) {
-          let temp, color;
+      // Generate flattened data for 8 levels (combining data from multiple cables)
+      for (let level = 0; level < 8; level++) {
+        let temp, color;
+        
+        // Simulate disconnect for silo 14 (all levels -127)
+        if (siloNumber === 14) {
+          temp = -127.0;
+          color = "#8c9494"; // Gray for disconnect
+          siloColor = "#8c9494";
+        } else {
+          const baseTemp = 20 + Math.random() * 15;
+          temp = Math.round(baseTemp * 100) / 100;
+          color = "#46d446"; // Green - normal
           
-          // Simulate disconnect for silo 14 (all levels -127)
-          if (siloNumber === 14) {
-            temp = -127.0;
-            color = "#8c9494"; // Gray for disconnect
-            siloColor = "#8c9494";
-          } else {
-            const baseTemp = 20 + Math.random() * 15;
-            temp = Math.round(baseTemp * 100) / 100;
-            color = "#46d446"; // Green - normal
-            
-            if (temp > 35) {
-              color = "#c7c150"; // Yellow - warning
-              if (temp > 38) {
-                color = "#d14141"; // Red - critical
-                siloColor = "#d14141";
-              } else if (siloColor === "#46d446") {
-                siloColor = "#c7c150";
-              }
+          if (temp > 35) {
+            color = "#c7c150"; // Yellow - warning
+            if (temp > 38) {
+              color = "#d14141"; // Red - critical
+              siloColor = "#d14141";
+            } else if (siloColor === "#46d446") {
+              siloColor = "#c7c150";
             }
           }
-          
-          siloData[`cable_${cable}_level_${level}`] = temp;
-          siloData[`cable_${cable}_color_${level}`] = color;
         }
+        
+        siloData[`level_${level}`] = temp;
+        siloData[`color_${level}`] = color;
       }
       
       siloData.silo_color = siloColor;
@@ -286,35 +284,73 @@ const generateMockReadings = (siloNumbers, type = 'individual') => {
   return results;
 };
 
+// Helper function to generate sensor data in Python format
+const generateSensorData = (sensorId, isMax = false) => {
+  const siloNumber = Math.floor((sensorId - 1) / 16) + 1; // 16 sensors per silo
+  const cableIndex = Math.floor(((sensorId - 1) % 16) / 8); // 8 sensors per cable
+  const levelIndex = (sensorId - 1) % 8; // Level within cable
+  const groupId = Math.floor((siloNumber - 1) / 50) + 1; // 50 silos per group
+  
+  const baseTemp = isMax ? 35 + Math.random() * 10 : 20 + Math.random() * 15;
+  const temperature = Math.round(baseTemp * 100) / 100;
+  
+  let state = "normal";
+  let color = "#46d446"; // Green
+  
+  if (temperature > 35) {
+    state = "warn";
+    color = "#c7c150"; // Yellow
+    if (temperature > 38) {
+      state = "critical";
+      color = "#d14141"; // Red
+    }
+  }
+  
+  // Simulate disconnect for sensor 112 (silo 14)
+  if (sensorId === 112) {
+    return {
+      sensor_id: sensorId,
+      group_id: groupId,
+      silo_number: siloNumber,
+      cable_index: cableIndex,
+      level_index: levelIndex,
+      state: "disconnect",
+      color: "#8c9494",
+      temperature: -127.0,
+      timestamp: new Date().toISOString()
+    };
+  }
+  
+  return {
+    sensor_id: sensorId,
+    group_id: groupId,
+    silo_number: siloNumber,
+    cable_index: cableIndex,
+    level_index: levelIndex,
+    state: state,
+    color: color,
+    temperature: temperature,
+    timestamp: new Date().toISOString()
+  };
+};
+
 // Sensor-level endpoints
 app.get('/readings/by-sensor', (req, res) => {
   const sensorIds = Array.isArray(req.query.sensor_id) ? req.query.sensor_id : [req.query.sensor_id];
-  const data = sensorIds.map(id => ({
-    sensor_id: parseInt(id),
-    temperature: Math.round((20 + Math.random() * 15) * 10) / 10,
-    timestamp: new Date().toISOString()
-  }));
-  res.json({ success: true, data });
+  const data = sensorIds.map(id => generateSensorData(parseInt(id)));
+  res.json(data);
 });
 
 app.get('/readings/latest/by-sensor', (req, res) => {
   const sensorIds = Array.isArray(req.query.sensor_id) ? req.query.sensor_id : [req.query.sensor_id];
-  const data = sensorIds.map(id => ({
-    sensor_id: parseInt(id),
-    temperature: Math.round((20 + Math.random() * 15) * 10) / 10,
-    timestamp: new Date().toISOString()
-  }));
-  res.json({ success: true, data });
+  const data = sensorIds.map(id => generateSensorData(parseInt(id)));
+  res.json(data);
 });
 
 app.get('/readings/max/by-sensor', (req, res) => {
   const sensorIds = Array.isArray(req.query.sensor_id) ? req.query.sensor_id : [req.query.sensor_id];
-  const data = sensorIds.map(id => ({
-    sensor_id: parseInt(id),
-    max_temperature: Math.round((35 + Math.random() * 10) * 10) / 10,
-    timestamp: new Date().toISOString()
-  }));
-  res.json({ success: true, data });
+  const data = sensorIds.map(id => generateSensorData(parseInt(id), true));
+  res.json(data);
 });
 
 // Cable-level endpoints
@@ -635,12 +671,23 @@ app.get('/sms/health', (req, res) => {
 // 🌡️ Environment Endpoints
 // ============================================================
 app.get('/env_temp', (req, res) => {
-  res.json({
-    success: true,
-    temperature: Math.round((Math.random() * 10 + 20) * 10) / 10,
-    humidity: Math.round((Math.random() * 30 + 40) * 10) / 10,
-    timestamp: new Date().toISOString()
-  });
+  // Mock cottage temperature data
+  // slave_id 21 = Inside temperature
+  // slave_id 22 = Outside temperature
+  const mockCottageData = [
+    {
+      slave_id: 21,
+      temperature_c: Math.round((22.5 + Math.random() * 5) * 10) / 10, // Inside: 22.5-27.5°C
+      timestamp: new Date().toISOString()
+    },
+    {
+      slave_id: 22,
+      temperature_c: Math.round((15.0 + Math.random() * 10) * 10) / 10, // Outside: 15-25°C
+      timestamp: new Date().toISOString()
+    }
+  ];
+  
+  res.json(mockCottageData);
 });
 
 app.get('/environment/temperature/latest', (req, res) => {
@@ -653,6 +700,7 @@ app.get('/environment/temperature/latest', (req, res) => {
     }
   });
 });
+
 
 // ============================================================
 // 🚀 Start Server

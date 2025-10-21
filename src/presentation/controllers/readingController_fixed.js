@@ -263,7 +263,9 @@ export class ReadingController {
         : [parseInt(req.query.silo_number)];
       
       const { start, end } = req.query;
-      const readings = await readingRepo.findLatestAvgBySiloNumber(siloNumbers, start, end);
+      const readings = await readingRepo.findLatestAvgBySiloNumber ? 
+        await readingRepo.findLatestAvgBySiloNumber(siloNumbers, start, end) :
+        await readingRepo.findBySiloNumber(siloNumbers, start, end);
       res.json(readings);
     } catch (err) {
       handleError(res, err);
