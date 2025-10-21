@@ -139,60 +139,83 @@ export function formatLevelsRow(silo, cableNumber, timestampIso, levelValues, pr
 }
 
 /**
- * Flatten per-cable rows into per-silo rows
- * Matches Python _flatten_rows_per_silo()
+ * Get the worst color from an array of colors
+ * Matches Python _worst_color_from_row() logic
+ */
+function getWorstColor(colors) {
+  if (!colors || colors.length === 0) return STATUS_COLORS.disconnect;
+  
+  const colorRank = {
+    [STATUS_COLORS.disconnect]: 4,
+    [STATUS_COLORS.critical]: 3, 
+    [STATUS_COLORS.warn]: 2,
+    [STATUS_COLORS.normal]: 1
+  };
+  
+  return colors.reduce((worst, current) => {
+    const currentRank = colorRank[current] || 0;
+    const worstRank = colorRank[worst] || 0;
+    return currentRank > worstRank ? current : worst;
+  }, STATUS_COLORS.normal);
+}
+
+/**
+ * Flatten per-cable rows into per-silo rows with detailed cable information
+ * Matches Python _flatten_rows_per_silo() exactly
  */
 export function flattenRowsPerSilo(perCableRows) {
   const grouped = {};
   
   for (const row of perCableRows) {
-    const key = `${row.silo_group || 'null'}_${row.silo_number}_${row.timestamp}`;
+    const sg = row.silo_group;
+    const sn = row.silo_number;
+    const ts = row.timestamp;
+    const cn = row.cable_number;
+    const key = `${sg || 'null'}_${sn}_${ts}`;
     
     if (!grouped[key]) {
       grouped[key] = {
-        silo_group: row.silo_group,
-        silo_number: row.silo_number,
-        timestamp: row.timestamp
+        silo_group: sg,
+        silo_number: sn,
+        cable_count: 0,
+        timestamp: ts
       };
-      
-      // Initialize all levels to null
-      for (let i = 0; i < 8; i++) {
-        grouped[key][`level_${i}`] = null;
-        grouped[key][`color_${i}`] = STATUS_COLORS.disconnect;
-      }
     }
     
-    // Merge level data from this cable
-    for (let i = 0; i < 8; i++) {
-      if (row[`level_${i}`] !== null && row[`level_${i}`] !== undefined) {
-        grouped[key][`level_${i}`] = row[`level_${i}`];
-        grouped[key][`color_${i}`] = row[`color_${i}`];
-      }
+    // Track max cable index seen (0-based)
+    if (typeof cn === 'number') {
+      grouped[key].cable_count = Math.max(grouped[key].cable_count, cn + 1);
+    }
+    
+    // Copy levels/colors from this cable row into the flat row
+    for (let lvl = 0; lvl < 8; lvl++) {
+      const lvKey = `level_${lvl}`;
+      const clKey = `color_${lvl}`;
+      grouped[key][`cable_${cn}_${lvKey}`] = row[lvKey];
+      grouped[key][`cable_${cn}_${clKey}`] = row[clKey];
     }
   }
   
-  // Calculate silo_color for each flattened row
-  for (const row of Object.values(grouped)) {
-    const colors = [];
-    for (let i = 0; i < 8; i++) {
-      colors.push(row[`color_${i}`]);
+  // Finalize: compute worst color in each flat row
+  const out = [];
+  for (const g of Object.values(grouped)) {
+    // Find worst color from all cable colors
+    const allColors = [];
+    for (let cable = 0; cable < g.cable_count; cable++) {
+      for (let level = 0; level < 8; level++) {
+        const color = g[`cable_${cable}_color_${level}`];
+        if (color) allColors.push(color);
+      }
     }
-    
-    // Find worst color
-    const colorRank = { 
-      [STATUS_COLORS.disconnect]: 4, 
-      [STATUS_COLORS.critical]: 3, 
-      [STATUS_COLORS.warn]: 2, 
-      [STATUS_COLORS.normal]: 1 
-    };
-    
-    const worstColor = colors.reduce((worst, current) => 
-      colorRank[current] > colorRank[worst] ? current : worst, STATUS_COLORS.normal);
-    
-    row.silo_color = normalizeHex(worstColor);
+    g.silo_color = getWorstColor(allColors);
+    out.push(g);
   }
   
-  return Object.values(grouped);
+  // Sort by silo_number then timestamp
+  return out.sort((a, b) => {
+    if (a.silo_number !== b.silo_number) return a.silo_number - b.silo_number;
+    return (a.timestamp || '').localeCompare(b.timestamp || '');
+  });
 }
 
 // ==============================
