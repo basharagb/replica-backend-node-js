@@ -802,4 +802,48 @@ export class ReadingRepository {
       throw new Error('Database error while fetching readings by silo group');
     }
   }
+
+  // 🔹 جلب أحدث القراءات حسب معرف مجموعة الصوامع (Latest - from readings_raw table)
+  async findLatestBySiloGroupId(siloGroupIds, startDate = null, endDate = null) {
+    try {
+      // First get silo IDs for the given group IDs
+      let siloQuery = `
+        SELECT id FROM silos WHERE silo_group_id IN (${siloGroupIds.map(() => '?').join(',')})
+      `;
+      const [siloRows] = await pool.query(siloQuery, siloGroupIds);
+      const siloIds = siloRows.map(row => row.id);
+      
+      if (siloIds.length === 0) {
+        return [];
+      }
+      
+      // Use existing findLatestBySiloId method
+      return await this.findLatestBySiloId(siloIds, startDate, endDate);
+    } catch (err) {
+      logger.error(`[ReadingRepository.findLatestBySiloGroupId] ❌ ${err.message}`);
+      throw new Error('Database error while fetching latest readings by silo group');
+    }
+  }
+
+  // 🔹 جلب أحدث القراءات المتوسطة حسب معرف مجموعة الصوامع (Latest - from readings_raw table)
+  async findLatestAvgBySiloGroupId(siloGroupIds, startDate = null, endDate = null) {
+    try {
+      // First get silo numbers for the given group IDs
+      let siloQuery = `
+        SELECT silo_number FROM silos WHERE silo_group_id IN (${siloGroupIds.map(() => '?').join(',')})
+      `;
+      const [siloRows] = await pool.query(siloQuery, siloGroupIds);
+      const siloNumbers = siloRows.map(row => row.silo_number);
+      
+      if (siloNumbers.length === 0) {
+        return [];
+      }
+      
+      // Use existing findLatestAvgBySiloNumber method
+      return await this.findLatestAvgBySiloNumber(siloNumbers, startDate, endDate);
+    } catch (err) {
+      logger.error(`[ReadingRepository.findLatestAvgBySiloGroupId] ❌ ${err.message}`);
+      throw new Error('Database error while fetching latest averaged readings by silo group');
+    }
+  }
 }

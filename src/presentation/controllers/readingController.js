@@ -3,6 +3,7 @@
 // ==============================
 import { ReadingRepository } from '../../infrastructure/repositories/ReadingRepository.js';
 import { ReportsReadingRepository } from '../../infrastructure/repositories/ReportsReadingRepository.js';
+import { pool } from '../../infrastructure/database/db.js';
 import { responseFormatter } from '../../infrastructure/utils/responseFormatter.js';
 import { handleError } from '../../infrastructure/utils/errorHandler.js';
 import { 
@@ -442,9 +443,33 @@ export class ReadingController {
         ? req.query.silo_group_id.map(id => parseInt(id))
         : [parseInt(req.query.silo_group_id)];
       
+      // First get silo numbers for the given group IDs
+      let siloQuery = `
+        SELECT silo_number FROM silos WHERE silo_group_id IN (${siloGroupIds.map(() => '?').join(',')})
+      `;
+      const [siloRows] = await pool.query(siloQuery, siloGroupIds);
+      const siloNumbers = siloRows.map(row => row.silo_number);
+      
+      if (siloNumbers.length === 0) {
+        return res.json([]);
+      }
+      
       const { start, end } = req.query;
-      const readings = await readingRepo.findBySiloGroupId(siloGroupIds, start, end);
-      res.json(readings);
+      const rawData = await readingRepo.findLatestBySiloNumber(siloNumbers, start, end);
+      
+      // Format data using the old Python system structure
+      const formattedRows = rawData.map(data => 
+        formatLevelsRow(
+          data.silo, 
+          data.cable_number, 
+          data.timestamp.toISOString(), 
+          data.levels
+        )
+      );
+      
+      // Flatten to combine multiple cables per silo into single rows
+      const flattened = flattenRowsPerSilo(formattedRows);
+      res.json(flattened);
     } catch (err) {
       handleError(res, err);
     }
@@ -488,8 +513,24 @@ export class ReadingController {
         : [parseInt(req.query.silo_group_id)];
       
       const { start, end } = req.query;
-      const readings = await readingRepo.findBySiloGroupId(siloGroupIds, start, end);
-      res.json(readings);
+      const avgData = await readingRepo.findLatestAvgBySiloGroupId(siloGroupIds, start, end);
+      
+      // Format each silo's data using formatLevelsRow (matching Python format_levels_row)
+      const formattedRows = avgData.map(siloData => {
+        const silo = {
+          silo_number: siloData.silo_number,
+          group_name: siloData.group_name
+        };
+        
+        return formatLevelsRow(
+          silo,
+          null, // No specific cable for averaged data
+          siloData.timestamp.toISOString(),
+          siloData.levels
+        );
+      });
+      
+      res.json(formattedRows);
     } catch (err) {
       handleError(res, err);
     }
