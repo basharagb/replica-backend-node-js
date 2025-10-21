@@ -11,7 +11,7 @@ const controller = new UserController();
 // 👤 User Routes - مسارات المستخدمين
 // ==============================
 
-// 🔹 تسجيل الدخول
+// 🔹 تسجيل الدخول (must be first to avoid conflicts)
 router.post('/login', controller.login.bind(controller));
 
 // 🔹 تسجيل الخروج
@@ -20,17 +20,17 @@ router.post('/logout', controller.logout.bind(controller));
 // 🔹 التحقق من صحة التوكن
 router.get('/verify-token', controller.verifyToken.bind(controller));
 
+// 🔹 إحصائيات المستخدمين
+router.get('/stats/summary', controller.getStats.bind(controller));
+
+// 🔹 جلب المستخدمين حسب الدور
+router.get('/role/:role', controller.getByRole.bind(controller));
+
 // 🔹 جلب جميع المستخدمين
 router.get('/', controller.getAll.bind(controller));
 
 // 🔹 جلب مستخدم حسب المعرف
 router.get('/:id', controller.getById.bind(controller));
-
-// 🔹 جلب المستخدمين حسب الدور
-router.get('/role/:role', controller.getByRole.bind(controller));
-
-// 🔹 إحصائيات المستخدمين
-router.get('/stats/summary', controller.getStats.bind(controller));
 
 // 🔹 إنشاء مستخدم جديد
 router.post('/', controller.create.bind(controller));

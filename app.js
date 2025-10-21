@@ -13,6 +13,7 @@ import smsRoutes from './src/presentation/routes/smsRoutes.js';
 import environmentRoutes from './src/presentation/routes/environmentRoutes.js';
 import siloLevelRoutes from './src/presentation/routes/siloLevelRoutes.js';
 import { responseFormatter } from './src/infrastructure/utils/responseFormatter.js';
+import { UserController } from './src/presentation/controllers/userController.js';
 
 // ============================================================
 // ⚙️ Environment Configuration
@@ -62,11 +63,14 @@ app.get('/health', async (req, res) => {
 app.use('/api/silos', siloRoutes);
 app.use('/readings', readingRoutes);
 app.use('/alerts', alertRoutes);
-app.use('/login', userRoutes); // للتوافق مع Postman collection
-app.use('/api/users', userRoutes);
 app.use('/sms', smsRoutes);
 app.use('/env_temp', environmentRoutes);
 app.use('/silos/level-estimate', siloLevelRoutes);
+app.use('/api/users', userRoutes);
+
+// 🔹 Direct login endpoint for Postman compatibility
+const userController = new UserController();
+app.post('/login', userController.login.bind(userController));
 
 // ============================================================
 // 🧭 Root Endpoint (Landing Page)

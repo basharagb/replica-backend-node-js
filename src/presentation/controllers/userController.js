@@ -303,4 +303,14 @@ export class UserController {
       handleError(res, err);
     }
   }
+
+  // 🔹 إحصائيات المستخدمين
+  async getStats(req, res) {
+    try {
+      const stats = await userRepo.getStats();
+      res.json(responseFormatter.success(stats, 'تم جلب الإحصائيات بنجاح'));
+    } catch (err) {
+      handleError(res, err);
+    }
+  }
 }
