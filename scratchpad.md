@@ -51,7 +51,28 @@
 - 📝 **Postman Collection**: Updated with proper date parameter examples
 
 **Branch**: `fix/reports-api-date-filtering`
-**Commit**: `75f84c1` - "fix: Update reports API to use readings table with proper date filtering"
+**Commit**: `4d614f5` - "fix: Update reports API to return sensor-level format matching old Python system"
+
+### 🚨 **CRITICAL FIX APPLIED** (Oct 21, 2025)
+**Issue**: Reports API was returning raw database format instead of sensor-level format like old Python system
+**Solution**: Fixed all reports endpoints to return proper `format_sensor_row_from_reading` structure:
+
+**✅ Correct Format Now Returned**:
+```json
+{
+  "sensor_id": 9,
+  "group_id": "Group 1",
+  "silo_number": 1,
+  "cable_index": 1,
+  "level_index": 0,
+  "state": "normal",
+  "color": "#46d446",
+  "temperature": 33,
+  "timestamp": "2025-10-13T18:59:06.218Z"
+}
+```
+
+**Previous Commit**: `75f84c1` - "fix: Update reports API to use readings table with proper date filtering"
 
 ## Previous Task  
 ✅ **COMPLETED** - Fix API Response Format to Match Old Python System (Oct 21, 2025)
