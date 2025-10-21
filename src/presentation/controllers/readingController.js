@@ -3,7 +3,14 @@
 // ==============================
 import { ReadingRepository } from '../../infrastructure/repositories/ReadingRepository.js';
 import { ReportsReadingRepository } from '../../infrastructure/repositories/ReportsReadingRepository.js';
+import { responseFormatter } from '../../infrastructure/utils/responseFormatter.js';
 import { handleError } from '../../infrastructure/utils/errorHandler.js';
+import { 
+  formatLevelsRow, 
+  flattenRowsPerSilo,
+  formatSensorRowFromRaw,
+  formatSensorRowFromReading 
+} from '../../infrastructure/utils/responseFormatters.js';
 
 const readingRepo = new ReadingRepository(); // For latest (readings_raw)
 const reportsRepo = new ReportsReadingRepository(); // For reports (readings)
@@ -216,10 +223,21 @@ export class ReadingController {
         : [parseInt(req.query.silo_number)];
       
       const { start, end } = req.query;
-      const readings = await readingRepo.findLatestBySiloNumber ? 
-        await readingRepo.findLatestBySiloNumber(siloNumbers, start, end) :
-        await readingRepo.findBySiloNumber(siloNumbers, start, end);
-      res.json(readings);
+      const rawData = await readingRepo.findLatestBySiloNumber(siloNumbers, start, end);
+      
+      // Format data using the old Python system structure
+      const formattedRows = rawData.map(data => 
+        formatLevelsRow(
+          data.silo, 
+          data.cable_number, 
+          data.timestamp.toISOString(), 
+          data.levels
+        )
+      );
+      
+      // Flatten to combine multiple cables per silo into single rows
+      const flattened = flattenRowsPerSilo(formattedRows);
+      res.json(flattened);
     } catch (err) {
       handleError(res, err);
     }

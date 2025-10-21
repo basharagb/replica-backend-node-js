@@ -586,6 +586,132 @@ export class ReadingRepository {
     }
   }
 
+  // 🔹 جلب أحدث القراءات حسب رقم الصومعة (Latest - from readings_raw table)
+  async findLatestBySiloNumber(siloNumbers, startDate = null, endDate = null) {
+    let query = `
+      SELECT 
+        r1.sensor_id, 
+        r1.value_c, 
+        r1.polled_at,
+        s.sensor_index,
+        c.cable_index,
+        c.id as cable_id,
+        silo.id as silo_id,
+        silo.silo_number,
+        sg.name as group_name,
+        sg.id as group_id
+      FROM readings_raw r1
+      INNER JOIN (
+        SELECT c.id as cable_id, MAX(r2.polled_at) as max_polled_at
+        FROM readings_raw r2
+        INNER JOIN sensors s ON r2.sensor_id = s.id
+        INNER JOIN cables c ON s.cable_id = c.id
+        INNER JOIN silos silo ON c.silo_id = silo.id
+        WHERE silo.silo_number IN (${siloNumbers.map(() => '?').join(',')})
+    `;
+    
+    const params = [...siloNumbers];
+    
+    if (startDate) {
+      query += ' AND r2.polled_at >= ?';
+      params.push(startDate);
+    }
+    
+    if (endDate) {
+      query += ' AND r2.polled_at <= ?';
+      params.push(endDate);
+    }
+    
+    query += `
+        GROUP BY c.id
+      ) latest ON r1.polled_at = latest.max_polled_at
+      INNER JOIN sensors s ON r1.sensor_id = s.id
+      INNER JOIN cables c ON s.cable_id = c.id AND c.id = latest.cable_id
+      INNER JOIN silos silo ON c.silo_id = silo.id
+      LEFT JOIN silo_groups sg ON silo.silo_group_id = sg.id
+      ORDER BY silo.silo_number, c.cable_index, s.sensor_index
+    `;
+    
+    try {
+      const [rows] = await pool.query(query, params);
+      
+      // Group by silo and cable to create level-based structure
+      const grouped = {};
+      
+      for (const row of rows) {
+        const key = `${row.silo_id}_${row.cable_id}`;
+        if (!grouped[key]) {
+          grouped[key] = {
+            silo: {
+              id: row.silo_id,
+              silo_number: row.silo_number,
+              group_name: row.group_name
+            },
+            cable_number: row.cable_index,
+            timestamp: row.polled_at,
+            levels: {}
+          };
+        }
+        
+        // Add temperature for this sensor level
+        grouped[key].levels[row.sensor_index] = parseFloat(row.value_c);
+      }
+      
+      return Object.values(grouped);
+    } catch (err) {
+      logger.error(`[ReadingRepository.findLatestBySiloNumber] ❌ ${err.message}`);
+      throw new Error('Database error while fetching latest readings by silo number');
+    }
+  }
+
+  // 🔹 جلب أحدث القراءات المتوسطة حسب رقم الصومعة
+  async findLatestAvgBySiloNumber(siloNumbers, startDate = null, endDate = null) {
+    let query = `
+      SELECT 
+        silo.silo_number,
+        s.sensor_index,
+        AVG(r.value_c) as avg_value_c,
+        COUNT(r.sensor_id) as reading_count,
+        MAX(r.polled_at) as latest_timestamp
+      FROM readings_raw r
+      INNER JOIN sensors s ON r.sensor_id = s.id
+      INNER JOIN cables c ON s.cable_id = c.id
+      INNER JOIN silos silo ON c.silo_id = silo.id
+      WHERE silo.silo_number IN (${siloNumbers.map(() => '?').join(',')})
+    `;
+    
+    const params = [...siloNumbers];
+    
+    if (startDate) {
+      query += ' AND r.polled_at >= ?';
+      params.push(startDate);
+    }
+    
+    if (endDate) {
+      query += ' AND r.polled_at <= ?';
+      params.push(endDate);
+    }
+    
+    query += `
+      GROUP BY silo.silo_number, s.sensor_index
+      ORDER BY silo.silo_number, s.sensor_index
+    `;
+    
+    try {
+      const [rows] = await pool.query(query, params);
+      return rows.map(row => ({
+        silo_number: row.silo_number,
+        sensor_index: row.sensor_index,
+        avg_temperature: parseFloat(row.avg_value_c),
+        reading_count: row.reading_count,
+        latest_timestamp: row.latest_timestamp
+      }));
+    } catch (err) {
+      logger.error(`[ReadingRepository.findLatestAvgBySiloNumber] ❌ ${err.message}`);
+      throw new Error('Database error while fetching latest average readings by silo number');
+    }
+  }
+
   // 🔹 جلب القراءات حسب معرف مجموعة الصوامع
   async findBySiloGroupId(siloGroupIds, startDate = null, endDate = null) {
     let query = `
