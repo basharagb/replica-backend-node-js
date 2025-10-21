@@ -664,48 +664,75 @@ export class ReadingRepository {
     }
   }
 
-  // 🔹 جلب أحدث القراءات المتوسطة حسب رقم الصومعة
+  // 🔹 جلب أحدث القراءات المتوسطة حسب رقم الصومعة (Python-compatible)
   async findLatestAvgBySiloNumber(siloNumbers, startDate = null, endDate = null) {
-    let query = `
-      SELECT 
-        silo.silo_number,
-        s.sensor_index,
-        AVG(r.value_c) as avg_value_c,
-        COUNT(r.sensor_id) as reading_count,
-        MAX(r.polled_at) as latest_timestamp
-      FROM readings_raw r
-      INNER JOIN sensors s ON r.sensor_id = s.id
-      INNER JOIN cables c ON s.cable_id = c.id
-      INNER JOIN silos silo ON c.silo_id = silo.id
-      WHERE silo.silo_number IN (${siloNumbers.map(() => '?').join(',')})
-    `;
-    
-    const params = [...siloNumbers];
-    
-    if (startDate) {
-      query += ' AND r.polled_at >= ?';
-      params.push(startDate);
-    }
-    
-    if (endDate) {
-      query += ' AND r.polled_at <= ?';
-      params.push(endDate);
-    }
-    
-    query += `
-      GROUP BY silo.silo_number, s.sensor_index
-      ORDER BY silo.silo_number, s.sensor_index
-    `;
-    
     try {
-      const [rows] = await pool.query(query, params);
-      return rows.map(row => ({
-        silo_number: row.silo_number,
-        sensor_index: row.sensor_index,
-        avg_temperature: parseFloat(row.avg_value_c),
-        reading_count: row.reading_count,
-        latest_timestamp: row.latest_timestamp
-      }));
+      // First, get the latest readings per cable (like the working endpoint)
+      const latestData = await this.findLatestBySiloNumber(siloNumbers, startDate, endDate);
+      
+      if (!latestData.length) {
+        return [];
+      }
+      
+      // Group by silo and average across cables per level
+      const siloGroups = {};
+      
+      for (const cableData of latestData) {
+        const key = `${cableData.silo.id}`;
+        
+        if (!siloGroups[key]) {
+          siloGroups[key] = {
+            silo_id: cableData.silo.id,
+            silo_number: cableData.silo.silo_number,
+            group_name: cableData.silo.group_name,
+            timestamp: cableData.timestamp,
+            levelSums: {},
+            levelCounts: {}
+          };
+          
+          // Initialize level sums and counts
+          for (let i = 0; i < 8; i++) {
+            siloGroups[key].levelSums[i] = 0;
+            siloGroups[key].levelCounts[i] = 0;
+          }
+        }
+        
+        // Add this cable's data to the averages (exclude disconnect values)
+        for (let level = 0; level < 8; level++) {
+          const temp = cableData.levels[level];
+          
+          if (temp !== null && temp !== undefined && temp !== -127.0) {
+            siloGroups[key].levelSums[level] += temp;
+            siloGroups[key].levelCounts[level]++;
+          }
+        }
+      }
+      
+      // Calculate averages and return structured data
+      const result = [];
+      
+      for (const group of Object.values(siloGroups)) {
+        const avgLevels = {};
+        
+        for (let i = 0; i < 8; i++) {
+          if (group.levelCounts[i] > 0) {
+            avgLevels[i] = group.levelSums[i] / group.levelCounts[i];
+          } else {
+            avgLevels[i] = null;
+          }
+        }
+        
+        result.push({
+          silo_id: group.silo_id,
+          silo_number: group.silo_number,
+          group_name: group.group_name,
+          timestamp: group.timestamp,
+          levels: avgLevels
+        });
+      }
+      
+      return result;
+      
     } catch (err) {
       logger.error(`[ReadingRepository.findLatestAvgBySiloNumber] ❌ ${err.message}`);
       throw new Error('Database error while fetching latest average readings by silo number');

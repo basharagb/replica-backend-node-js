@@ -281,8 +281,26 @@ export class ReadingController {
         : [parseInt(req.query.silo_number)];
       
       const { start, end } = req.query;
-      const readings = await readingRepo.findLatestAvgBySiloNumber(siloNumbers, start, end);
-      res.json(readings);
+      
+      // Use repository method that matches Python logic
+      const avgData = await readingRepo.findLatestAvgBySiloNumber(siloNumbers, start, end);
+      
+      // Format each silo's data using formatLevelsRow (matching Python format_levels_row)
+      const formattedRows = avgData.map(siloData => {
+        const silo = {
+          silo_number: siloData.silo_number,
+          group_name: siloData.group_name
+        };
+        
+        return formatLevelsRow(
+          silo,
+          null, // No specific cable for averaged data
+          siloData.timestamp.toISOString(),
+          siloData.levels
+        );
+      });
+      
+      res.json(formattedRows);
     } catch (err) {
       handleError(res, err);
     }
