@@ -635,7 +635,11 @@ export class ReadingRepository {
     try {
       const [rows] = await pool.query(query, params);
       
-      // Group by silo and cable to create level-based structure
+      if (!rows.length) {
+        return [];
+      }
+      
+      // Step 1: Group by silo and cable to create level-based structure
       const grouped = {};
       
       for (const row of rows) {
@@ -657,7 +661,27 @@ export class ReadingRepository {
         grouped[key].levels[row.sensor_index] = parseFloat(row.value_c);
       }
       
-      return Object.values(grouped);
+      // Step 2: Coalesce all cables in a silo to the same "latest second" bucket (Python logic)
+      const latestSecPerSilo = {};
+      for (const data of Object.values(grouped)) {
+        const siloId = data.silo.id;
+        const timestamp = new Date(data.timestamp);
+        // Bucket to second precision (strip milliseconds)
+        const sec = new Date(timestamp.getFullYear(), timestamp.getMonth(), timestamp.getDate(), 
+                           timestamp.getHours(), timestamp.getMinutes(), timestamp.getSeconds());
+        
+        if (!latestSecPerSilo[siloId] || sec > latestSecPerSilo[siloId]) {
+          latestSecPerSilo[siloId] = sec;
+        }
+      }
+      
+      // Step 3: Update all cable entries to use the silo's shared timestamp
+      const result = Object.values(grouped).map(data => ({
+        ...data,
+        timestamp: latestSecPerSilo[data.silo.id]
+      }));
+      
+      return result;
     } catch (err) {
       logger.error(`[ReadingRepository.findLatestBySiloNumber] ❌ ${err.message}`);
       throw new Error('Database error while fetching latest readings by silo number');
