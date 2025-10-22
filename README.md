@@ -69,6 +69,19 @@ To provide innovative, reliable, and comprehensive technology solutions that emp
 
 A comprehensive industrial silo temperature monitoring system with real-time capabilities, built using Clean Architecture with Node.js and MySQL. This system replaces legacy Python implementations with **maximum performance optimization**.
 
+### 🚀 **Phase Two: Advanced Visual Warehouse Management**
+
+We are now expanding into **Phase Two** - an innovative visual warehouse management system that revolutionizes traditional inventory management. 
+
+📋 **[View Phase Two Documentation](PHASE_TWO_WAREHOUSE_MANAGEMENT.md)**
+
+**Key Features of Phase Two:**
+- 🎨 **Interactive Visual Interface** - Graphical silo map with drag-and-drop functionality
+- 📦 **Advanced Inventory Management** - Visual material tracking (wheat, corn, barley, rice)
+- 📅 **Scheduled Operations** - Plan incoming/outgoing shipments (e.g., "2 tons wheat arriving in 2 days")
+- 🚛 **Truck Management** - Track loading/unloading operations with confirmations
+- 🎮 **Drag & Drop System** - Beautiful visual interface with material icons and animations
+
 ### ✨ Key Features
 
 - **🌡️ Real-time Monitoring** - 8-level temperature sensing per silo (levels 0-7)
