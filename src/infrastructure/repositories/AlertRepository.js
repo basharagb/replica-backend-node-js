@@ -23,7 +23,7 @@ export class AlertRepository {
       FROM alerts a
       INNER JOIN silos s ON a.silo_id = s.id
       LEFT JOIN silo_groups sg ON s.silo_group_id = sg.id
-      WHERE a.status = 'active'
+      WHERE 1=1  -- Get all alerts regardless of status
     `;
     
     const params = [];
@@ -46,7 +46,7 @@ export class AlertRepository {
         SELECT COUNT(*) as total
         FROM alerts a
         INNER JOIN silos s ON a.silo_id = s.id
-        WHERE a.status = 'active'
+        WHERE 1=1  -- Count all alerts regardless of status
       `;
       
       const countParams = [];

@@ -123,14 +123,52 @@ cp .env.example .env
 # Edit .env file with your database credentials
 
 # 4. Start the server
-npm start
 
-# Or for development with auto-reload
+# 🚀 PRODUCTION MODE (RECOMMENDED - Real Database Connection)
+node app.js
+
+# 🛠️ DEVELOPMENT MODE (Mock Data Only)
+node devApp.js
+# Or with auto-reload
 npm run dev
 
-# For production with clustering
+# 📦 Alternative Production Commands
+npm start
+# Or for production with clustering
 npm run production
 ```
+
+## 🔄 Production vs Development Modes
+
+### 🚀 Production Mode (Real Database)
+
+**Use this mode for real data from MySQL database:**
+
+```bash
+# Start production API with real MySQL connection
+node app.js
+```
+
+**Features:**
+- ✅ Connects to real MySQL `silos` database
+- ✅ Returns all alerts (481+ alerts from database)
+- ✅ Real sensor readings with actual timestamps
+- ✅ All alert types: disconnect, critical, warn
+- ✅ Complete data matching phpMyAdmin content
+
+### 🛠️ Development Mode (Mock Data)
+
+**Use this mode only for testing without database:**
+
+```bash
+# Start development API with mock data
+node devApp.js
+```
+
+**Features:**
+- ⚠️ Uses mock/fake data (only 3 sample alerts)
+- ⚠️ No real database connection required
+- ⚠️ Limited data for testing purposes only
 
 ### Environment Configuration
 
@@ -139,7 +177,7 @@ npm run production
 DB_HOST=localhost
 DB_USER=your_username
 DB_PASSWORD=your_password
-DB_NAME=silos_dump
+DB_NAME=silos
 DB_PORT=3306
 
 # Server Configuration
