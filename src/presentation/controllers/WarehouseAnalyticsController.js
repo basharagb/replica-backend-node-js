@@ -1,7 +1,7 @@
-const WarehouseInventoryRepository = require('../../infrastructure/repositories/WarehouseInventoryRepository');
-const ShipmentRepository = require('../../infrastructure/repositories/ShipmentRepository');
-const MaterialTypeRepository = require('../../infrastructure/repositories/MaterialTypeRepository');
-const logger = require('../../infrastructure/utils/logger');
+import WarehouseInventoryRepository from '../../infrastructure/repositories/WarehouseInventoryRepository.js';
+import ShipmentRepository from '../../infrastructure/repositories/ShipmentRepository.js';
+import MaterialTypeRepository from '../../infrastructure/repositories/MaterialTypeRepository.js';
+import { logger } from '../../infrastructure/config/logger.js';
 
 class WarehouseAnalyticsController {
   constructor() {
@@ -292,4 +292,4 @@ class WarehouseAnalyticsController {
   }
 }
 
-module.exports = WarehouseAnalyticsController;
+export default WarehouseAnalyticsController;

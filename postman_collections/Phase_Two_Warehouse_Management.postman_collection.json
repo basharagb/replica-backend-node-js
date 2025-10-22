@@ -547,6 +547,38 @@
 				}
 			],
 			"description": "Additional warehouse APIs"
+		},
+		{
+			"name": "🧪 Test & Debug APIs",
+			"item": [
+				{
+					"name": "Test Warehouse Connection",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/warehouse/test",
+							"host": ["{{base_url}}"],
+							"path": ["warehouse", "test"]
+						},
+						"description": "اختبار اتصال المستودع وقاعدة البيانات\nTest warehouse connection and database"
+					}
+				},
+				{
+					"name": "Test Materials Setup",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/warehouse/test/materials",
+							"host": ["{{base_url}}"],
+							"path": ["warehouse", "test", "materials"]
+						},
+						"description": "اختبار إعداد جدول المواد وإدراج بيانات تجريبية\nTest materials table setup and insert sample data"
+					}
+				}
+			],
+			"description": "Test and debugging APIs for Phase Two"
 		}
 	],
 	"variable": [
@@ -554,6 +586,20 @@
 			"key": "base_url",
 			"value": "http://localhost:3000",
 			"description": "Base URL for the API - Production server using real MySQL database"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Set base URL if not already set",
+					"if (!pm.variables.get('base_url')) {",
+					"    pm.variables.set('base_url', 'http://localhost:3000');",
+					"}"
+				]
+			}
 		}
 	]
 }

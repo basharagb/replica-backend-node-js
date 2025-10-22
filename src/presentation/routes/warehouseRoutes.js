@@ -3,6 +3,7 @@ import MaterialTypeController from '../controllers/MaterialTypeController.js';
 import WarehouseController from '../controllers/WarehouseController.js';
 import ShipmentController from '../controllers/ShipmentController.js';
 import WarehouseAnalyticsController from '../controllers/WarehouseAnalyticsController.js';
+import TestController from '../controllers/TestController.js';
 
 const router = express.Router();
 
@@ -11,6 +12,7 @@ const materialTypeController = new MaterialTypeController();
 const warehouseController = new WarehouseController();
 const shipmentController = new ShipmentController();
 const warehouseAnalyticsController = new WarehouseAnalyticsController();
+const testController = new TestController();
 
 // ========================================
 // 🏭 PHASE TWO: WAREHOUSE MANAGEMENT APIs
@@ -83,5 +85,15 @@ router.get('/analytics/shipments', (req, res) => warehouseAnalyticsController.ge
 // 📈 Additional Warehouse Summary API
 // GET /warehouse/summary - Get warehouse summary statistics
 router.get('/summary', (req, res) => warehouseController.getWarehouseSummary(req, res));
+
+// 🧪 Test APIs for debugging
+// GET /warehouse/test - Test warehouse functionality
+router.get('/test', (req, res) => testController.testWarehouse(req, res));
+
+// GET /warehouse/test/materials - Test materials functionality
+router.get('/test/materials', (req, res) => testController.testMaterials(req, res));
+
+// GET /warehouse/test/shipments - Test shipments functionality
+router.get('/test/shipments', (req, res) => testController.testShipments(req, res));
 
 export default router;

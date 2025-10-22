@@ -1,6 +1,6 @@
-const pool = require('../database/optimizedDb');
-const Shipment = require('../../domain/entities/Shipment');
-const logger = require('../utils/logger');
+import { pool } from '../database/optimizedDb.js';
+import Shipment from '../../domain/entities/Shipment.js';
+import { logger } from '../config/logger.js';
 
 class ShipmentRepository {
   
@@ -76,9 +76,69 @@ class ShipmentRepository {
       params.push(`%${filters.referenceNumber}%`);
     }
     
-    // Count total for pagination
-    const countQuery = query.replace(/SELECT.*?FROM/, 'SELECT COUNT(*) as total FROM');
-    const [countResult] = await pool.query(countQuery, params);
+    // Count total for pagination - build count query with same filters
+    let countQuery = `
+      SELECT COUNT(*) as total
+      FROM shipments sh
+      INNER JOIN silos s ON sh.silo_id = s.id
+      LEFT JOIN silo_groups sg ON s.silo_group_id = sg.id
+      INNER JOIN material_types mt ON sh.material_type_id = mt.id
+      WHERE 1=1
+    `;
+    
+    const countParams = [];
+    
+    if (filters.shipmentType) {
+      countQuery += ' AND sh.shipment_type = ?';
+      countParams.push(filters.shipmentType);
+    }
+    
+    if (filters.status) {
+      countQuery += ' AND sh.status = ?';
+      countParams.push(filters.status);
+    }
+    
+    if (filters.siloId) {
+      countQuery += ' AND sh.silo_id = ?';
+      countParams.push(filters.siloId);
+    }
+    
+    if (filters.materialTypeId) {
+      countQuery += ' AND sh.material_type_id = ?';
+      countParams.push(filters.materialTypeId);
+    }
+    
+    if (filters.dateFrom) {
+      countQuery += ' AND sh.scheduled_date >= ?';
+      countParams.push(filters.dateFrom);
+    }
+    
+    if (filters.dateTo) {
+      countQuery += ' AND sh.scheduled_date <= ?';
+      countParams.push(filters.dateTo);
+    }
+    
+    if (filters.truckPlate) {
+      countQuery += ' AND sh.truck_plate LIKE ?';
+      countParams.push(`%${filters.truckPlate}%`);
+    }
+    
+    if (filters.driverName) {
+      countQuery += ' AND sh.driver_name LIKE ?';
+      countParams.push(`%${filters.driverName}%`);
+    }
+    
+    if (filters.supplierCustomer) {
+      countQuery += ' AND sh.supplier_customer LIKE ?';
+      countParams.push(`%${filters.supplierCustomer}%`);
+    }
+    
+    if (filters.referenceNumber) {
+      countQuery += ' AND sh.reference_number LIKE ?';
+      countParams.push(`%${filters.referenceNumber}%`);
+    }
+    
+    const [countResult] = await pool.query(countQuery, countParams);
     const total = countResult[0].total;
     
     // Add pagination
@@ -385,4 +445,4 @@ class ShipmentRepository {
   }
 }
 
-module.exports = ShipmentRepository;
+export default ShipmentRepository;

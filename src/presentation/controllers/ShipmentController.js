@@ -1,7 +1,7 @@
-const ShipmentRepository = require('../../infrastructure/repositories/ShipmentRepository');
-const WarehouseInventoryRepository = require('../../infrastructure/repositories/WarehouseInventoryRepository');
-const Shipment = require('../../domain/entities/Shipment');
-const logger = require('../../infrastructure/utils/logger');
+import ShipmentRepository from '../../infrastructure/repositories/ShipmentRepository.js';
+import WarehouseInventoryRepository from '../../infrastructure/repositories/WarehouseInventoryRepository.js';
+import Shipment from '../../domain/entities/Shipment.js';
+import { logger } from '../../infrastructure/config/logger.js';
 
 class ShipmentController {
   constructor() {

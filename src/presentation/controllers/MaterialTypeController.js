@@ -1,6 +1,6 @@
 import MaterialTypeRepository from '../../infrastructure/repositories/MaterialTypeRepository.js';
 import WarehouseInventoryRepository from '../../infrastructure/repositories/WarehouseInventoryRepository.js';
-import logger from '../../infrastructure/utils/logger.js';
+import { logger } from '../../infrastructure/config/logger.js';
 
 class MaterialTypeController {
   constructor() {
