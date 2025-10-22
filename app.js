@@ -12,6 +12,7 @@ import userRoutes from './src/presentation/routes/userRoutes.js';
 import smsRoutes from './src/presentation/routes/smsRoutes.js';
 import environmentRoutes from './src/presentation/routes/environmentRoutes.js';
 import siloLevelRoutes from './src/presentation/routes/siloLevelRoutes.js';
+import warehouseRoutes from './src/presentation/routes/warehouseRoutes.js';
 import { responseFormatter } from './src/infrastructure/utils/responseFormatter.js';
 import { UserController } from './src/presentation/controllers/userController.js';
 
@@ -60,6 +61,7 @@ app.get('/health', async (req, res) => {
 // ============================================================
 // 🌾 API Routes - مسارات واجهة برمجة التطبيقات
 // ============================================================
+// Phase One: Temperature Monitoring System
 app.use('/api/silos', siloRoutes);
 app.use('/readings', readingRoutes);
 app.use('/alerts', alertRoutes);
@@ -67,6 +69,9 @@ app.use('/sms', smsRoutes);
 app.use('/env_temp', environmentRoutes);
 app.use('/silos/level-estimate', siloLevelRoutes);
 app.use('/api/users', userRoutes);
+
+// Phase Two: Warehouse Management System
+app.use('/warehouse', warehouseRoutes);
 
 // 🔹 Direct login endpoint for Postman compatibility
 const userController = new UserController();
