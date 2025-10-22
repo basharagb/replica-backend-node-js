@@ -132,74 +132,217 @@ cd replica-backend-node-js
 npm install
 
 # 3. Setup environment variables
-cp .env.example .env
+cp .env.production .env
 # Edit .env file with your database credentials
 
-# 4. Start the server
-
-# 🚀 PRODUCTION MODE (RECOMMENDED - Real Database Connection)
-node app.js
-
-# 🛠️ DEVELOPMENT MODE (Mock Data Only)
-node devApp.js
-# Or with auto-reload
-npm run dev
-
-# 📦 Alternative Production Commands
+# 4. Start the server in production mode
 npm start
-# Or for production with clustering
+# Or explicitly
 npm run production
+```
+
+## 🏭 Production Mode Setup
+
+### 🚀 **RECOMMENDED: Production Mode (Real Database)**
+
+For production deployment with real MySQL database connection:
+
+```bash
+# Method 1: Using npm scripts (RECOMMENDED)
+npm start                    # Starts production mode with app.js
+npm run production          # Explicit production mode
+npm run start:production    # Production with NODE_ENV=production
+
+# Method 2: Direct node commands
+node app.js                 # Direct production mode
+NODE_ENV=production node app.js  # With environment variable
+
+# Method 3: High-performance clustering (for production servers)
+npm run start:production:cluster  # Production with clustering enabled
+```
+
+### 📋 Production Environment Configuration
+
+Create or update your `.env` file for production:
+
+```bash
+# Production Environment Variables
+NODE_ENV=production
+PORT=3000
+HOST=0.0.0.0
+
+# Database Configuration (Required)
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=your_db_user
+DB_PASSWORD=your_secure_password
+DB_NAME=silos
+
+# Security (Required)
+JWT_SECRET=your_super_secure_jwt_secret_key_here
+JWT_EXPIRES_IN=24h
+
+# Performance Settings (Optional)
+CLUSTER_MODE=false
+MAX_CONNECTIONS=1000
+KEEP_ALIVE_TIMEOUT=65000
+
+# Cache Configuration (Optional)
+CACHE_TTL_DEFAULT=300
+CACHE_TTL_READINGS=60
+CACHE_TTL_ALERTS=30
+```
+
+### 🔧 Production Checklist
+
+Before running in production, ensure:
+
+- ✅ **Database Setup**: MySQL 8.0+ with `silos` database created
+- ✅ **Environment Variables**: All required variables in `.env` file
+- ✅ **Database User**: Dedicated database user with proper permissions
+- ✅ **Security**: Strong JWT secret and database passwords
+- ✅ **Network**: Firewall configured for port 3000 (or your chosen port)
+- ✅ **SSL/TLS**: HTTPS setup for production domains (recommended)
+
+### 🛠️ Development Mode (Testing Only)
+
+For development and testing with mock data:
+
+```bash
+# Development with mock data (no database required)
+npm run start:dev           # Starts devApp.js with mock data
+npm run dev                 # Development with auto-reload
+npm run dev:debug          # Development with debugging enabled
 ```
 
 ## 🔄 Production vs Development Modes
 
-### 🚀 Production Mode (Real Database)
+### 🚀 Production Mode (Real Database) - **RECOMMENDED**
 
 **Use this mode for real data from MySQL database:**
 
 ```bash
-# Start production API with real MySQL connection
-node app.js
+# Recommended production startup methods
+npm start                    # Default production mode
+npm run production          # Explicit production mode
+node app.js                 # Direct production startup
 ```
 
-**Features:**
-- ✅ Connects to real MySQL `silos` database
-- ✅ Returns all alerts (481+ alerts from database)
-- ✅ Real sensor readings with actual timestamps
-- ✅ All alert types: disconnect, critical, warn
-- ✅ Complete data matching phpMyAdmin content
+**✅ Production Features:**
+- **Real Database Connection**: Connects to MySQL `silos` database
+- **Complete Data Access**: Returns all alerts (481+ alerts from database)
+- **Real Sensor Readings**: Actual timestamps and temperature data
+- **All Alert Types**: Disconnect, critical, warning alerts included
+- **Performance Optimized**: Connection pooling, caching, compression
+- **Security Enabled**: JWT authentication, input validation, rate limiting
+- **Production Logging**: Structured logging with appropriate levels
+- **Health Monitoring**: Built-in health checks and metrics
 
-### 🛠️ Development Mode (Mock Data)
+### 🛠️ Development Mode (Mock Data) - **Testing Only**
 
 **Use this mode only for testing without database:**
 
 ```bash
-# Start development API with mock data
-node devApp.js
+# Development startup methods
+npm run start:dev           # Development with mock data
+npm run dev                 # Development with auto-reload
+node devApp.js             # Direct development startup
 ```
 
-**Features:**
-- ⚠️ Uses mock/fake data (only 3 sample alerts)
-- ⚠️ No real database connection required
-- ⚠️ Limited data for testing purposes only
+**⚠️ Development Features:**
+- **Mock Data Only**: Uses fake/sample data (limited alerts)
+- **No Database Required**: Runs without MySQL connection
+- **Testing Purpose**: Limited data for development testing
+- **Auto-Reload**: Nodemon support for development
+- **Debug Mode**: Enhanced logging and error details
 
-### Environment Configuration
+### 🔧 Production Deployment Guide
+
+#### Step 1: Environment Setup
 
 ```bash
-# Database Configuration
+# Copy production environment template
+cp .env.production .env
+
+# Edit with your production values
+nano .env
+```
+
+#### Step 2: Database Preparation
+
+```sql
+-- Create production database
+CREATE DATABASE silos CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Create dedicated user
+CREATE USER 'silo_user'@'localhost' IDENTIFIED BY 'secure_password';
+GRANT ALL PRIVILEGES ON silos.* TO 'silo_user'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+#### Step 3: Production Startup
+
+```bash
+# Install dependencies
+npm install --production
+
+# Start production server
+npm start
+
+# Or with process manager (recommended)
+pm2 start app.js --name "silo-api"
+```
+
+#### Step 4: Verify Production Setup
+
+```bash
+# Check health endpoint
+curl http://localhost:3000/health
+
+# Test authentication
+curl -X POST http://localhost:3000/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin", "password": "your_password"}'
+
+# Verify real data
+curl http://localhost:3000/alerts/active
+```
+
+### 🌐 Production Environment Variables
+
+```bash
+# Core Configuration
+NODE_ENV=production
+PORT=3000
+HOST=0.0.0.0
+
+# Database Configuration (Required)
 DB_HOST=localhost
-DB_USER=your_username
-DB_PASSWORD=your_password
+DB_USER=silo_user
+DB_PASSWORD=your_secure_password
 DB_NAME=silos
 DB_PORT=3306
+DB_CONNECTION_LIMIT=50
 
-# Server Configuration
-PORT=3000
-NODE_ENV=production
-
-# JWT Configuration
-JWT_SECRET=your_jwt_secret
+# Security Configuration (Required)
+JWT_SECRET=your_super_secure_jwt_secret_key_here
 JWT_EXPIRES_IN=24h
+BCRYPT_ROUNDS=12
+
+# Performance Settings
+CLUSTER_MODE=false
+MAX_CONNECTIONS=1000
+KEEP_ALIVE_TIMEOUT=65000
+
+# Caching Configuration
+CACHE_TTL_DEFAULT=300
+CACHE_TTL_READINGS=60
+CACHE_TTL_ALERTS=30
+
+# Monitoring & Logging
+LOG_LEVEL=info
+ENABLE_METRICS=true
+HEALTH_CHECK_INTERVAL=60000
 
 # SMS Configuration (Optional)
 SMS_ENABLED=true

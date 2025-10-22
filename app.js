@@ -12,7 +12,7 @@ import userRoutes from './src/presentation/routes/userRoutes.js';
 import smsRoutes from './src/presentation/routes/smsRoutes.js';
 import environmentRoutes from './src/presentation/routes/environmentRoutes.js';
 import siloLevelRoutes from './src/presentation/routes/siloLevelRoutes.js';
-import warehouseRoutes from './src/presentation/routes/warehouseRoutes.js';
+import warehouseRoutes from './src/presentation/routes/simpleWarehouseRoutes.js';
 import { responseFormatter } from './src/infrastructure/utils/responseFormatter.js';
 import { UserController } from './src/presentation/controllers/userController.js';
 
