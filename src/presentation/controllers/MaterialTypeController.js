@@ -1,9 +1,11 @@
 import MaterialTypeRepository from '../../infrastructure/repositories/MaterialTypeRepository.js';
+import WarehouseInventoryRepository from '../../infrastructure/repositories/WarehouseInventoryRepository.js';
 import logger from '../../infrastructure/utils/logger.js';
 
 class MaterialTypeController {
   constructor() {
     this.materialTypeRepository = new MaterialTypeRepository();
+    this.warehouseInventoryRepository = new WarehouseInventoryRepository();
   }
 
   // 🔹 GET /warehouse/materials - Get all material types
@@ -206,6 +208,73 @@ class MaterialTypeController {
       res.status(500).json({
         success: false,
         message: 'Failed to delete material type',
+        error: error.message
+      });
+    }
+  }
+
+  // 🔹 GET /warehouse/materials/:siloId - Get materials in specific silo
+  async getMaterialsBySilo(req, res) {
+    try {
+      const { siloId } = req.params;
+      
+      // Get inventory for this silo
+      const inventoryItems = await this.warehouseInventoryRepository.findBySiloId(siloId);
+      
+      if (inventoryItems.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: `No materials found in silo ${siloId}`
+        });
+      }
+      
+      // Extract material information with quantities
+      const materials = inventoryItems.map(item => ({
+        materialId: item.inventory.materialTypeId,
+        materialName: item.material.name,
+        materialNameAr: item.material.nameAr,
+        description: item.material.description || null,
+        colorCode: item.material.colorCode,
+        iconPath: item.material.iconPath,
+        density: item.material.density,
+        unit: item.material.unit,
+        inventory: {
+          quantity: item.inventory.quantity,
+          availableQuantity: item.inventory.availableQuantity,
+          reservedQuantity: item.inventory.reservedQuantity,
+          entryDate: item.inventory.entryDate,
+          expiryDate: item.inventory.expiryDate,
+          batchNumber: item.inventory.batchNumber,
+          supplier: item.inventory.supplier,
+          qualityGrade: item.inventory.qualityGrade,
+          notes: item.inventory.notes
+        }
+      }));
+      
+      // Calculate totals
+      const totals = {
+        totalQuantity: materials.reduce((sum, m) => sum + m.inventory.quantity, 0),
+        totalAvailable: materials.reduce((sum, m) => sum + m.inventory.availableQuantity, 0),
+        totalReserved: materials.reduce((sum, m) => sum + m.inventory.reservedQuantity, 0),
+        materialCount: materials.length
+      };
+      
+      logger.info(`[MaterialTypeController.getMaterialsBySilo] ✅ Retrieved ${materials.length} materials for silo ${siloId}`);
+      
+      res.json({
+        success: true,
+        data: {
+          siloId: parseInt(siloId),
+          materials: materials,
+          totals: totals
+        },
+        message: `Materials in silo ${siloId} retrieved successfully`
+      });
+    } catch (error) {
+      logger.error(`[MaterialTypeController.getMaterialsBySilo] ❌ ${error.message}`);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to retrieve materials for silo',
         error: error.message
       });
     }

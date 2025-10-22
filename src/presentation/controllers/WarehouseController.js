@@ -168,6 +168,91 @@ class WarehouseController {
       });
     }
   }
+
+  // 🔹 GET /warehouse/silos/search - Search silos by material type
+  async searchSilosByMaterial(req, res) {
+    try {
+      const { material_name, material_name_ar } = req.query;
+      
+      if (!material_name && !material_name_ar) {
+        return res.status(400).json({
+          success: false,
+          message: 'Please provide material_name or material_name_ar parameter'
+        });
+      }
+      
+      const filters = {};
+      if (material_name || material_name_ar) {
+        // We'll search by material type
+        const materials = await this.materialTypeRepository.findAll();
+        const targetMaterial = materials.find(m => 
+          (material_name && m.name.toLowerCase().includes(material_name.toLowerCase())) ||
+          (material_name_ar && m.nameAr.includes(material_name_ar))
+        );
+        
+        if (targetMaterial) {
+          filters.materialTypeId = targetMaterial.id;
+        } else {
+          return res.json({
+            success: true,
+            data: [],
+            count: 0,
+            message: `No silos found containing ${material_name || material_name_ar}`
+          });
+        }
+      }
+      
+      const inventoryItems = await this.warehouseInventoryRepository.findAll(filters);
+      
+      // Group by silo and include material information
+      const silosMap = new Map();
+      
+      inventoryItems.forEach(item => {
+        const siloId = item.inventory.siloId;
+        if (!silosMap.has(siloId)) {
+          silosMap.set(siloId, {
+            siloId: siloId,
+            siloNumber: item.silo.siloNumber,
+            siloGroupId: item.silo.siloGroupId,
+            siloGroupName: item.silo.siloGroupName,
+            materials: [],
+            totalQuantity: 0
+          });
+        }
+        
+        const silo = silosMap.get(siloId);
+        silo.materials.push({
+          materialId: item.inventory.materialTypeId,
+          materialName: item.material.name,
+          materialNameAr: item.material.nameAr,
+          quantity: item.inventory.quantity,
+          availableQuantity: item.inventory.availableQuantity,
+          colorCode: item.material.colorCode,
+          iconPath: item.material.iconPath
+        });
+        silo.totalQuantity += item.inventory.quantity;
+      });
+      
+      const silos = Array.from(silosMap.values());
+      
+      logger.info(`[WarehouseController.searchSilosByMaterial] ✅ Found ${silos.length} silos containing ${material_name || material_name_ar}`);
+      
+      res.json({
+        success: true,
+        data: silos,
+        count: silos.length,
+        searchTerm: material_name || material_name_ar,
+        message: `Found ${silos.length} silos containing ${material_name || material_name_ar}`
+      });
+    } catch (error) {
+      logger.error(`[WarehouseController.searchSilosByMaterial] ❌ ${error.message}`);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to search silos by material',
+        error: error.message
+      });
+    }
+  }
 }
 
 export default WarehouseController;

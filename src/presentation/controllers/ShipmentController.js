@@ -264,6 +264,135 @@ class ShipmentController {
       });
     }
   }
+
+  // 🔹 GET /warehouse/shipments/search - Search shipments by various criteria
+  async searchShipments(req, res) {
+    try {
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 50;
+      
+      const filters = {
+        shipmentType: req.query.type,
+        status: req.query.status,
+        siloId: req.query.silo_id,
+        materialTypeId: req.query.material_type_id,
+        dateFrom: req.query.date_from,
+        dateTo: req.query.date_to,
+        truckPlate: req.query.truck_plate,
+        driverName: req.query.driver_name,
+        supplierCustomer: req.query.supplier_customer,
+        referenceNumber: req.query.reference_number
+      };
+      
+      // Remove undefined filters
+      Object.keys(filters).forEach(key => {
+        if (filters[key] === undefined) {
+          delete filters[key];
+        }
+      });
+      
+      const result = await this.shipmentRepository.findAll(filters, page, limit);
+      
+      logger.info(`[ShipmentController.searchShipments] ✅ Found ${result.shipments.length} shipments matching search criteria`);
+      
+      res.json({
+        success: true,
+        data: result.shipments.map(item => ({
+          ...item.shipment.toJSON(),
+          silo: item.silo,
+          material: item.material
+        })),
+        pagination: result.pagination,
+        searchFilters: filters,
+        message: `Found ${result.shipments.length} shipments matching search criteria`
+      });
+    } catch (error) {
+      logger.error(`[ShipmentController.searchShipments] ❌ ${error.message}`);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to search shipments',
+        error: error.message
+      });
+    }
+  }
+
+  // 🔹 GET /warehouse/shipments/incoming - Get only incoming shipments
+  async getIncomingShipments(req, res) {
+    try {
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 50;
+      
+      const filters = {
+        shipmentType: 'INCOMING',
+        status: req.query.status,
+        siloId: req.query.silo_id,
+        materialTypeId: req.query.material_type_id,
+        dateFrom: req.query.date_from,
+        dateTo: req.query.date_to
+      };
+      
+      const result = await this.shipmentRepository.findAll(filters, page, limit);
+      
+      logger.info(`[ShipmentController.getIncomingShipments] ✅ Retrieved ${result.shipments.length} incoming shipments`);
+      
+      res.json({
+        success: true,
+        data: result.shipments.map(item => ({
+          ...item.shipment.toJSON(),
+          silo: item.silo,
+          material: item.material
+        })),
+        pagination: result.pagination,
+        message: 'Incoming shipments retrieved successfully'
+      });
+    } catch (error) {
+      logger.error(`[ShipmentController.getIncomingShipments] ❌ ${error.message}`);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to retrieve incoming shipments',
+        error: error.message
+      });
+    }
+  }
+
+  // 🔹 GET /warehouse/shipments/outgoing - Get only outgoing shipments
+  async getOutgoingShipments(req, res) {
+    try {
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 50;
+      
+      const filters = {
+        shipmentType: 'OUTGOING',
+        status: req.query.status,
+        siloId: req.query.silo_id,
+        materialTypeId: req.query.material_type_id,
+        dateFrom: req.query.date_from,
+        dateTo: req.query.date_to
+      };
+      
+      const result = await this.shipmentRepository.findAll(filters, page, limit);
+      
+      logger.info(`[ShipmentController.getOutgoingShipments] ✅ Retrieved ${result.shipments.length} outgoing shipments`);
+      
+      res.json({
+        success: true,
+        data: result.shipments.map(item => ({
+          ...item.shipment.toJSON(),
+          silo: item.silo,
+          material: item.material
+        })),
+        pagination: result.pagination,
+        message: 'Outgoing shipments retrieved successfully'
+      });
+    } catch (error) {
+      logger.error(`[ShipmentController.getOutgoingShipments] ❌ ${error.message}`);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to retrieve outgoing shipments',
+        error: error.message
+      });
+    }
+  }
 }
 
-module.exports = ShipmentController;
+export default ShipmentController;

@@ -56,6 +56,26 @@ class ShipmentRepository {
       params.push(filters.dateTo);
     }
     
+    if (filters.truckPlate) {
+      query += ' AND sh.truck_plate LIKE ?';
+      params.push(`%${filters.truckPlate}%`);
+    }
+    
+    if (filters.driverName) {
+      query += ' AND sh.driver_name LIKE ?';
+      params.push(`%${filters.driverName}%`);
+    }
+    
+    if (filters.supplierCustomer) {
+      query += ' AND sh.supplier_customer LIKE ?';
+      params.push(`%${filters.supplierCustomer}%`);
+    }
+    
+    if (filters.referenceNumber) {
+      query += ' AND sh.reference_number LIKE ?';
+      params.push(`%${filters.referenceNumber}%`);
+    }
+    
     // Count total for pagination
     const countQuery = query.replace(/SELECT.*?FROM/, 'SELECT COUNT(*) as total FROM');
     const [countResult] = await pool.query(countQuery, params);

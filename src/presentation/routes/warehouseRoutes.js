@@ -16,7 +16,7 @@ const warehouseAnalyticsController = new WarehouseAnalyticsController();
 // 🏭 PHASE TWO: WAREHOUSE MANAGEMENT APIs
 // ========================================
 
-// 📦 Material Types APIs (4 endpoints)
+// 📦 Material Types APIs (5 endpoints)
 // GET /warehouse/materials - Get all material types
 router.get('/materials', (req, res) => materialTypeController.getAllMaterials(req, res));
 
@@ -29,9 +29,15 @@ router.patch('/materials/:id', (req, res) => materialTypeController.updateMateri
 // DELETE /warehouse/materials/:id - Delete material type
 router.delete('/materials/:id', (req, res) => materialTypeController.deleteMaterial(req, res));
 
-// 🏭 Warehouse Silos APIs (3 endpoints)
+// GET /warehouse/materials/:siloId - Get materials in specific silo
+router.get('/materials/:siloId', (req, res) => materialTypeController.getMaterialsBySilo(req, res));
+
+// 🏭 Warehouse Silos APIs (4 endpoints)
 // GET /warehouse/silos - Get all warehouse silos with inventory
 router.get('/silos', (req, res) => warehouseController.getAllWarehouseSilos(req, res));
+
+// GET /warehouse/silos/search - Search silos by material type (تحتوي قمح، تحتوي شعير)
+router.get('/silos/search', (req, res) => warehouseController.searchSilosByMaterial(req, res));
 
 // GET /warehouse/silo/:id - Get specific silo inventory details
 router.get('/silo/:id', (req, res) => warehouseController.getSiloInventory(req, res));
@@ -39,9 +45,18 @@ router.get('/silo/:id', (req, res) => warehouseController.getSiloInventory(req, 
 // PATCH /warehouse/silo/:id - Update silo inventory notes
 router.patch('/silo/:id', (req, res) => warehouseController.updateSiloNotes(req, res));
 
-// 🚛 Shipments APIs (5 endpoints)
+// 🚛 Shipments APIs (8 endpoints)
 // GET /warehouse/shipments - Get all shipments with pagination
 router.get('/shipments', (req, res) => shipmentController.getAllShipments(req, res));
+
+// GET /warehouse/shipments/search - Search shipments by various criteria
+router.get('/shipments/search', (req, res) => shipmentController.searchShipments(req, res));
+
+// GET /warehouse/shipments/incoming - Get only incoming shipments
+router.get('/shipments/incoming', (req, res) => shipmentController.getIncomingShipments(req, res));
+
+// GET /warehouse/shipments/outgoing - Get only outgoing shipments
+router.get('/shipments/outgoing', (req, res) => shipmentController.getOutgoingShipments(req, res));
 
 // POST /warehouse/silo/:id/incoming - Create incoming shipment
 router.post('/silo/:id/incoming', (req, res) => shipmentController.createIncomingShipment(req, res));
